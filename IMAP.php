@@ -39,6 +39,9 @@ class IMAPMailbox {
 		$IMAPMessageClass = $this->IMAPMessageClass;
 
 		$headers = imap_headers($this->mbox);
+		if ( $options['newestFirst'] ) {
+			$headers = array_reverse($headers);
+		}
 
 		$messages = array();
 		$eligables = 0;
@@ -66,10 +69,6 @@ class IMAPMailbox {
 			}
 		}
 
-		if ( $options['newestFirst'] ) {
-			$messages = array_reverse($messages);
-		}
-
 		return $messages;
 	}
 
@@ -85,19 +84,213 @@ class IMAPMailbox {
 
 class IMAPMessage {
 
-	public $mbox; // typeof IMAPMailbox
+	static public $IMAPMessagePartClass = 'IMAPMessagePart';
+	static public $IMAPMessageAttachmentClass = 'IMAPMessageAttachment';
+
+	public $mailbox; // typeof IMAPMailbox
 
 	public $msgNumber = 1; // starts at 1, not 0
 	public $header = '';
 	public $unseen = true;
 
+	public $headers; // typeof stdClass
 	public $structure; // typeof stdClass
 
-	public function __construct( IMAPMailbox $mbox, $msgNumber, $header, $unseen ) {
-		$this->mbox = $mbox;
+	public $subject = '';
+	public $parts = array();
+	public $plainBody;
+	public $HTMLBody;
+	public $attachments = array(); // typeof Array<IMAPMessageAttachment>
+
+	public function __construct( IMAPMailbox $mailbox, $msgNumber, $header, $unseen ) {
+		$this->mailbox = $mailbox;
 		$this->msgNumber = $msgNumber;
 		$this->header = $header;
 		$this->unseen = $unseen;
+	}
+
+	public function subject() {
+		if ( !$this->subject ) {
+			$headers = $this->headers();
+
+			$subjectParts = imap_mime_header_decode($headers->Subject);
+			$subject = '';
+			foreach ( $subjectParts AS $p ) {
+				$subject .= $p->text;
+			}
+
+			$this->subject = trim($subject);
+		}
+
+		return $this->subject;
+	}
+
+	public function headers() {
+		if ( !$this->headers ) {
+			$this->headers = imap_headerinfo($this->mailbox->mbox, $this->msgNumber);
+		}
+
+		return $this->headers;
+	}
+
+	public function parts() {
+		if ( !$this->parts ) {
+			$structure = $this->structure();
+
+			// Possibilities:
+			// - PLAIN => only plain, no attachments
+			// - ALTERNATIVE => plain & html, no attachments
+			// - MIXED => message (ALTERNATIVE or PLAIN) & attachments
+
+			$IMAPMessagePartClass = self::$IMAPMessagePartClass;
+
+			$parts = $attachments = array();
+
+			// - PLAIN
+			if ( 'PLAIN' == $structure->subtype ) {
+				$parts[] = new $IMAPMessagePartClass($this, $structure, '1');
+			}
+
+			// - ALTERNATIVE
+			else if ( 'ALTERNATIVE' == $structure->subtype ) {
+				// get message parts
+				$parts = $this->messageParts($structure->parts, null, $IMAPMessagePartClass);
+			}
+
+			// - MIXED -- uh oh -- attachments!
+			else {
+				$IMAPMessageAttachmentClass = self::$IMAPMessageAttachmentClass;
+
+				foreach ( $structure->parts AS $i => $part ) {
+					if ( 'ALTERNATIVE' == $part->subtype ) {
+						$parts = array_merge($parts, $this->messageParts($part->parts, $i+1, $IMAPMessagePartClass));
+					}
+					else {
+						$parts[] = new $IMAPMessagePartClass($this, $part, $i+1);
+
+						if ( $part->ifdisposition && 'ATTACHMENT' == $part->disposition ) {
+							$attachments[] = new $IMAPMessageAttachmentClass($this, $part, $i+1);
+						}
+					}
+				}
+			}
+
+			$this->parts = $parts;
+			$this->attachments = $attachments;
+
+			foreach ( $parts AS $part ) {
+				if ( 'PLAIN' == $part->subtype && !$this->plainBody ) {
+					$this->plainBody = $part;
+				}
+				else if ( 'HTML' == $part->subtype && !$this->HTMLBody ) {
+					$this->HTMLBody = $part;
+				}
+			}
+		}
+
+		return $this->parts;
+	}
+
+	protected function messageParts( $parts, $sectionPrefix = array(), $IMAPMessagePartClass ) {
+		$sectionPrefix = (array)$sectionPrefix;
+
+		$partObjects = array();
+		foreach ( $parts AS $i => $part ) {
+			$s = $sectionPrefix;
+			$s[] = (string)($i+1);
+			$section = implode('.', $s);
+
+			$partObjects[] = new $IMAPMessagePartClass($this, $part, $section);
+		}
+
+		return $partObjects;
+	}
+
+	public function structure() {
+		if ( !$this->structure ) {
+			$this->structure = imap_fetchstructure($this->mailbox->mbox, $this->msgNumber);
+		}
+
+		return $this->structure;
+	}
+
+}
+
+class IMAPMessagePart {
+
+	public $message; // typeof IMAPMessage
+	public $structure; // typeof stdClass
+
+	public $section = '';
+	public $subtype = '';
+	public $contentType = '';
+	public $charset = '';
+	public $size = 0;
+	public $data = '';
+
+	public function __construct( $message, $structure, $section ) {
+		$this->message = $message;
+		$this->structure = $structure;
+		$this->section = (string)$section;
+		$this->subtype = $structure->subtype;
+	}
+
+	public function content() {
+		return imap_fetchbody($this->message->mailbox->mbox, $this->message->msgNumber, $this->section);
+	}
+
+	public function decode( $content ) {
+		return $content;
+	}
+
+}
+
+class IMAPMessageAttachment extends IMAPMessagePart {
+
+	public $filename = '';
+
+	public function __construct( $message, $structure, $section ) {
+		parent::__construct($message, $structure, $section);
+
+		$this->filename();
+	}
+
+	public function filename() {
+		if ( !$this->filename ) {
+			// from dparameters
+			if ( $this->structure->ifdparameters ) {
+				foreach ( $this->structure->dparameters AS $param ) {
+					if ( 'FILENAME' == $param->attribute ) {
+						$this->filename = $param->value;
+						break;
+					}
+				}
+			}
+
+			// from parameters
+			if ( !$this->filename && $this->structure->ifparameters ) {
+				foreach ( $this->structure->parameters AS $param ) {
+					if ( 'NAME' == $param->attribute ) {
+						$this->filename = $param->value;
+						break;
+					}
+				}
+			}
+		}
+
+		return $this->filename;
+	}
+
+	public function save( $filepath ) {
+		if ( '/' == substr($filepath, -1) ) {
+			$filepath .= $this->filename;
+		}
+
+		return file_put_contents($filepath, $this->decode($this->content()));
+	}
+
+	public function decode( $content ) {
+		return base64_decode($content);
 	}
 
 }
