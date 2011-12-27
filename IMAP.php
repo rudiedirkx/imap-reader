@@ -109,6 +109,26 @@ class IMAPMessage {
 		$this->unseen = $unseen;
 	}
 
+	protected function flags( $flags, $clear ) {
+		$cb = $clear ? 'imap_clearflag_full' : 'imap_setflag_full';
+
+		$feedback = array();
+		foreach ( (array)$flags AS $flag ) {
+			$flag = '\\' . ucfirst($flag);
+			$feedback[] = $cb($this->mailbox->mbox, (string)$this->msgNumber, $flag);
+		}
+
+		return is_array($flags) ? $feedback : $feedback[0];
+	}
+
+	public function flag( $flags ) {
+		return $this->flags($flags, false);
+	}
+
+	public function unflag( $flags ) {
+		return $this->flags($flags, true);
+	}
+
 	public function subject() {
 		if ( !$this->subject ) {
 			$headers = $this->headers();
@@ -218,15 +238,15 @@ class IMAPMessage {
 
 class IMAPMessagePart {
 
-	public $message; // typeof IMAPMessage
-	public $structure; // typeof stdClass
-
 	public $section = '';
 	public $subtype = '';
 	public $contentType = '';
 	public $charset = '';
 	public $size = 0;
 	public $data = '';
+
+	public $message; // typeof IMAPMessage
+	public $structure; // typeof stdClass
 
 	public function __construct( $message, $structure, $section ) {
 		$this->message = $message;
