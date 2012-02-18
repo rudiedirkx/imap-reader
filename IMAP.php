@@ -11,17 +11,24 @@ class IMAPMailbox {
 
 	public $mbox; // IMAP resource
 
-	public function __construct( $server, $username, $password, $mailbox = 'INBOX' ) {
+	public function __construct( $server, $username, $password, $mailbox = 'INBOX', $flags = array() ) {
 		$this->server = $server;
 		$this->username = $username;
 		$this->password = $password;
 		$this->mailbox = $mailbox;
+		$this->flags = $flags;
 
 		$this->connect();
 	}
 
 	public function connect() {
-		$this->mbox = imap_open('{'.$this->server.'}'.$this->mailbox.'', $this->username, $this->password);
+		$server = $this->server;
+		if ( $this->flags ) {
+			$server .= '/' . implode('/', $this->flags);
+		}
+
+		$mailbox = '{'.$server.'}'.$this->mailbox;
+		$this->mbox = imap_open($mailbox, $this->username, $this->password);
 	}
 
 	public function messages( $options = true ) {
