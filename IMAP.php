@@ -140,11 +140,7 @@ class IMAPMessage {
 		if ( !$this->subject ) {
 			$headers = $this->headers();
 
-			$subjectParts = imap_mime_header_decode($headers->Subject);
-			$subject = '';
-			foreach ( $subjectParts AS $p ) {
-				$subject .= $p->text;
-			}
+			$subject = imap_utf8($headers->Subject);
 
 			$this->subject = trim($subject);
 		}
@@ -263,11 +259,12 @@ class IMAPMessagePart {
 	}
 
 	public function content() {
-		return imap_fetchbody($this->message->mailbox->mbox, $this->message->msgNumber, $this->section);
+		$body = imap_fetchbody($this->message->mailbox->mbox, $this->message->msgNumber, $this->section);
+		return $this->decode($body);
 	}
 
 	public function decode( $content ) {
-		return $content;
+		return quoted_printable_decode($content);
 	}
 
 }
