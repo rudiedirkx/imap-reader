@@ -1,0 +1,19 @@
+{
+    "name": "rdx/imap",
+    "description": "Reads and parses e-mail from an IMAP/POP3 source",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Rudie Dirkx",
+            "email": "github@hotblocks.nl"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "rdx\\imap\\": "src"
+        }
+    }
+}
