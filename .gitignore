@@ -1,4 +1,2 @@
-attachments
-
-settings.php
-private.*.php
+attachments/
+env.php

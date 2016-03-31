@@ -1,10 +1,9 @@
 <pre><?php
 
-require 'settings.php'; // $host, $user, $pass
-
+require 'env.php';
 require 'IMAP.php';
 
-$mbox = new IMAPMailbox($host, $user, $pass);
+$mbox = new IMAPMailbox(IMAP_TEST_HOST, IMAP_TEST_USER, IMAP_TEST_PASS, 'INBOX', ['novalidate-cert']);
 print_r($mbox);
 
 $messages = $mbox->messages(array('seen' => false, 'offset' => 0, 'limit' => 3, 'newestFirst' => true));
@@ -24,6 +23,8 @@ foreach ( $messages AS $message ) {
 	foreach ( $message->attachments AS $attachment ) {
 		var_dump($attachment->save(__DIR__.'/attachments/'));
 	}
+
+	exit;
 
 }
 
