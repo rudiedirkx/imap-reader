@@ -1,6 +1,5 @@
 To do:
 
-* Mailbox->message(number)
 * Restructure Message vs Part vs Interface
 * Attachments
 * Get HTML mail
