@@ -1,0 +1,89 @@
+<?php
+
+namespace rdx\imap;
+
+class IMAPMailbox {
+
+	public $server = '';
+	public $username = '';
+	public $password = '';
+	public $mailbox = '';
+
+	protected $imap; // IMAP resource
+
+	public function __construct( $server, $username, $password, $mailbox = 'INBOX', $flags = array() ) {
+		$this->server = $server;
+		$this->username = $username;
+		$this->password = $password;
+		$this->mailbox = $mailbox;
+		$this->flags = $flags;
+
+		// $this->connect();
+	}
+
+	public function connect() {
+		if ( !$this->imap ) {
+			$server = $this->server;
+			if ( $this->flags ) {
+				$server .= '/' . implode('/', $this->flags);
+			}
+
+			$mailbox = '{'.$server.'}'.$this->mailbox;
+			$this->imap = imap_open($mailbox, $this->username, $this->password);
+		}
+
+		return $this->imap;
+	}
+
+	public function imap() {
+		return $this->imap;
+	}
+
+	public function headers( $newestFirst = true ) {
+		$this->connect();
+
+		$headers = imap_headers($this->imap());
+
+		if ( $newestFirst ) {
+			$headers = array_reverse($headers);
+		}
+
+		return $headers;
+	}
+
+	public function messages( array $options = [] ) {
+		$options += array(
+			'offset' => 0,
+			'limit' => 0,
+			'seen' => null,
+			'newestFirst' => true,
+		);
+
+		$headers = $this->headers($options['newestFirst']);
+
+		$messages = array();
+		$eligibles = 0;
+		foreach ( $headers AS $n => $header ) {
+			if ( preg_match('/(U?)\s+(\d+)\)/', $header, $match) ) {
+				$unseen = (bool)trim($match[1]);
+				$msgNum = (int)$match[2];
+
+				$eligible = $options['seen'] === null || $unseen != $options['seen'];
+				if ( $eligible ) {
+					$eligibles++;
+
+					if ( $eligibles > $options['offset'] ) {
+						$messages[] = new IMAPMessage($this, $msgNum, $header, $unseen);
+					}
+				}
+
+				if ( $options['limit'] && isset($messages[$options['limit']-1]) ) {
+					break;
+				}
+			}
+		}
+
+		return $messages;
+	}
+
+}

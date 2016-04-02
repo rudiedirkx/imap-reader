@@ -1,9 +1,21 @@
-<pre><?php
+<?php
+
+use rdx\imap\IMAPMailbox;
 
 require 'env.php';
-require 'IMAP.php';
+require 'autoload.php';
 
-$mbox = imap_open('{' . IMAP_HELPDESK_HOST . '/novalidate-cert}INBOX', IMAP_HELPDESK_USER, IMAP_HELPDESK_PASS);
+header('Content-type: text/plain');
+
+$mbox = new IMAPMailbox(IMAP_HELPDESK_HOST, IMAP_HELPDESK_USER, IMAP_HELPDESK_PASS, 'INBOX', ['novalidate-cert']);
+
+print_r($mbox->headers());
+
+$messages = $mbox->messages();
+var_dump(count($messages));
+print_r($messages);
+
+exit;
 
 $headers = imap_headers($mbox);
 print_r($headers);

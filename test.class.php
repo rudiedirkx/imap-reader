@@ -1,7 +1,11 @@
-<pre><?php
+<?php
+
+use rdx\imap\IMAPMailbox;
 
 require 'env.php';
-require 'IMAP.php';
+require 'autoload.php';
+
+header('Content-type: text/plain');
 
 $mbox = new IMAPMailbox(IMAP_TEST_HOST, IMAP_TEST_USER, IMAP_TEST_PASS, 'INBOX', ['novalidate-cert']);
 print_r($mbox);
