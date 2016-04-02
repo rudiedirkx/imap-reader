@@ -9,16 +9,25 @@ header('Content-type: text/plain');
 
 $mbox = new IMAPMailbox(IMAP_BOUNCES_HOST, IMAP_BOUNCES_USER, IMAP_BOUNCES_PASS, 'INBOX', ['novalidate-cert']);
 
-print_r($mbox->headers());
-echo "\n";
+// print_r($mbox->headers(false));
+// echo "\n";
 
-$messages = $mbox->messages(['newestFirst' => false/*, 'offset' => 5, 'limit' => 2*/]);
-var_dump(count($messages));
-echo "\n";
+if ( true ) {
+	// LOAD MANY
+	$messages = $mbox->messages(['newestFirst' => false, 'limit' => 11]);
+	var_dump(count($messages));
+	echo "\n";
+}
+else {
+	// LOAD ONE
+	$messages = [$mbox->message(11)];
+}
 
 foreach ($messages as $message) {
 	echo "\n\n";
-	echo '[' . $message->msgNumber . '] [' . date('Y-m-d H:i:s', $message->utc()) . '] ' . $message->subject() . "\n";
+	echo '[' . $message->msgNumber() . '] [' . date('Y-m-d H:i:s', $message->utc()) . '] ' . $message->subject() . "\n";
+
+	// continue;
 
 	echo "\n";
 	// print_r($message->headers());
@@ -27,7 +36,7 @@ foreach ($messages as $message) {
 
 
 	// $printSection = function($section) use ($message) {
-	// 	$body = imap_fetchbody($message->mailbox->imap(), $message->msgNumber, $section, FT_PEEK);
+	// 	$body = imap_fetchbody($message->mailbox->imap(), $message->msgNumber(), $section, FT_PEEK);
 	// 	if ( $body ) {
 	// 		// echo "\n\n\n\n\n\n\n\n\n\n\n\n\n";
 	// 		// echo "===============================================================\n";
@@ -75,7 +84,7 @@ foreach ($messages as $message) {
 	// 	echo "===============================================================\n";
 	// 	echo "\n\n\n\n\n\n\n\n\n\n\n\n\n";
 
-	// 	echo implode('.', $part->section) . ' :: ' . $part->subtype . ":\n\n";
+	// 	echo implode('.', $part->section()) . ' :: ' . $part->subtype() . ":\n\n";
 
 	// 	print_r($part->parameters());
 	// 	echo "\n";

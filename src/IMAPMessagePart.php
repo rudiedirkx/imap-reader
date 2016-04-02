@@ -4,15 +4,15 @@ namespace rdx\imap;
 
 class IMAPMessagePart implements IMAPMessagePartInterface {
 
-	public $section = [];
-	public $subtype = '';
+	protected $section = [];
+	protected $subtype = '';
 
-	public $parts = [];
-	public $parameters = [];
+	protected $parts = [];
+	protected $parameters = [];
 
-	public $message; // typeof IMAPMessage
-	public $structure; // typeof stdClass
-	public $skippedParts = []; // Array<stdClass>
+	protected $message; // typeof IMAPMessage
+	protected $structure; // typeof stdClass
+	protected $skippedParts = []; // Array<stdClass>
 
 	public function __construct( IMAPMessage $message, $structure, array $section ) {
 		$this->message = $message;
@@ -30,9 +30,9 @@ class IMAPMessagePart implements IMAPMessagePartInterface {
 
 			foreach ( $parts as $n => $part ) {
 				$this->parts[] = new IMAPMessagePart(
-					$this->message,
+					$this->message(),
 					$part,
-					array_merge($this->section, [$n+1])
+					array_merge($this->section(), [$n+1])
 				);
 			}
 		}
@@ -96,9 +96,9 @@ class IMAPMessagePart implements IMAPMessagePartInterface {
 
 	public function content() {
 		$body = imap_fetchbody(
-			$this->message->mailbox->imap(),
-			$this->message->msgNumber,
-			implode('.', $this->section),
+			$this->message()->mailbox()->imap(),
+			$this->message()->msgNumber(),
+			implode('.', $this->section()),
 			FT_PEEK
 		);
 		return $this->decode($body);
@@ -106,6 +106,18 @@ class IMAPMessagePart implements IMAPMessagePartInterface {
 
 	public function decode( $content ) {
 		return quoted_printable_decode($content);
+	}
+
+	public function message() {
+		return $this->message;
+	}
+
+	public function section() {
+		return $this->section;
+	}
+
+	public function subtype() {
+		return $this->subtype;
 	}
 
 }

@@ -4,27 +4,29 @@ namespace rdx\imap;
 
 class IMAPMessage implements IMAPMessagePartInterface {
 
-	public $mailbox; // typeof IMAPMailbox
+	protected $mailbox; // typeof IMAPMailbox
 
-	public $msgNumber = 1; // starts at 1, not 0
-	public $header = '';
-	public $unseen = true;
+	protected $msgNumber = 1; // starts at 1, not 0
+	protected $unseen = true;
 
-	public $headers; // typeof stdClass
-	public $structure; // typeof stdClass
+	protected $headers = [];
+	protected $structure; // typeof stdClass
 
-	public $subject = '';
-	public $parts = [];
-	public $parameters = [];
-	public $plainBody;
-	public $HTMLBody;
-	public $attachments = []; // typeof Array<IMAPMessageAttachment>
+	protected $subject = '';
+	protected $parts = [];
+	protected $parameters = [];
+	protected $plainBody;
+	protected $HTMLBody;
+	protected $attachments = []; // typeof Array<IMAPMessageAttachment>
 
-	public function __construct( IMAPMailbox $mailbox, $msgNumber, $header, $unseen ) {
+	public function __construct( IMAPMailbox $mailbox, $msgNumber, $unseen = null ) {
 		$this->mailbox = $mailbox;
 		$this->msgNumber = $msgNumber;
-		$this->header = $header;
 		$this->unseen = $unseen;
+
+		if ( $unseen === null ) {
+			$this->unseen = (bool) trim($this->header('unseen'));
+		}
 	}
 
 	protected function flags( $flags, $clear ) {
@@ -33,7 +35,7 @@ class IMAPMessage implements IMAPMessagePartInterface {
 		$feedback = [];
 		foreach ( (array)$flags AS $flag ) {
 			$flag = '\\' . ucfirst($flag);
-			$feedback[] = $cb($this->mailbox->imap(), (string)$this->msgNumber, $flag);
+			$feedback[] = $cb($this->mailbox()->imap(), (string)$this->msgNumber, $flag);
 		}
 
 		return is_array($flags) ? $feedback : $feedback[0];
@@ -48,16 +50,12 @@ class IMAPMessage implements IMAPMessagePartInterface {
 	}
 
 	public function utc() {
-		$headers = $this->headers();
-		return strtotime($headers->Date);
+		return strtotime($this->header('date'));
 	}
 
 	public function subject() {
 		if ( empty($this->subject) ) {
-			$headers = $this->headers();
-
-			$subject = imap_utf8($headers->Subject);
-
+			$subject = imap_utf8($this->header('subject'));
 			$this->subject = trim($subject);
 		}
 
@@ -66,10 +64,18 @@ class IMAPMessage implements IMAPMessagePartInterface {
 
 	public function headers() {
 		if ( empty($this->headers) ) {
-			$this->headers = imap_headerinfo($this->mailbox->imap(), $this->msgNumber);
+			$headers = imap_headerinfo($this->mailbox()->imap(), $this->msgNumber);
+			foreach ( $headers as $name => $value ) {
+				$this->headers[ strtolower($name) ] = $value;
+			}
 		}
 
 		return $this->headers;
+	}
+
+	public function header( $name ) {
+		$headers = $this->headers();
+		return @$headers[ strtolower($name) ];
 	}
 
 	public function parts() {
@@ -85,6 +91,7 @@ class IMAPMessage implements IMAPMessagePartInterface {
 			// - REPORT
 			// - HTML
 			// - CALENDAR
+			// - JPEG
 
 			if ( empty($structure->parts) ) {
 				$this->parts[] = new IMAPMessagePart(
@@ -135,7 +142,7 @@ class IMAPMessage implements IMAPMessagePartInterface {
 
 	public function structure() {
 		if ( empty($this->structure) ) {
-			$this->structure = imap_fetchstructure($this->mailbox->imap(), $this->msgNumber);
+			$this->structure = imap_fetchstructure($this->mailbox()->imap(), $this->msgNumber);
 		}
 
 		return $this->structure;
@@ -171,11 +178,11 @@ class IMAPMessage implements IMAPMessagePartInterface {
 		foreach ( $this->allParts(true) as $part ) {
 			$name = '';
 
-			$name .= implode('.', $part->section) . '. ';
+			$name .= implode('.', $part->section()) . '. ';
 			if ( $part->parts() ) {
 				$name .= '*';
 			}
-			$name .= $part->subtype;
+			$name .= $part->subtype();
 			if ( $bytes = $part->parameter('bytes') ) {
 				$name .= ' (' . $bytes . ')';
 			}
@@ -184,6 +191,14 @@ class IMAPMessage implements IMAPMessagePartInterface {
 		}
 
 		return $parts;
+	}
+
+	public function msgNumber() {
+		return $this->msgNumber;
+	}
+
+	public function mailbox() {
+		return $this->mailbox;
 	}
 
 }

@@ -4,11 +4,11 @@ namespace rdx\imap;
 
 class IMAPMailbox {
 
-	public $server = '';
-	public $username = '';
-	public $password = '';
-	public $mailbox = '';
-	public $flags = [];
+	protected $server = '';
+	protected $username = '';
+	protected $password = '';
+	protected $mailbox = '';
+	protected $flags = [];
 
 	protected $imap; // imap_open() resource
 
@@ -23,7 +23,7 @@ class IMAPMailbox {
 	public function connect() {
 		if ( !$this->imap ) {
 			$server = $this->server;
-			if ( $this->flags ) {
+			if ( !empty($this->flags) ) {
 				$server .= '/' . implode('/', $this->flags);
 			}
 
@@ -50,6 +50,12 @@ class IMAPMailbox {
 		return $headers;
 	}
 
+	public function message( $msgNum ) {
+		$this->connect();
+
+		return new IMAPMessage($this, $msgNum);
+	}
+
 	public function messages( array $options = [] ) {
 		$options += [
 			'offset' => 0,
@@ -63,16 +69,16 @@ class IMAPMailbox {
 		$messages = [];
 		$eligibles = 0;
 		foreach ( $headers AS $n => $header ) {
-			if ( preg_match('/(U?)\s+(\d+)\)/', $header, $match) ) {
-				$unseen = (bool)trim($match[1]);
-				$msgNum = (int)$match[2];
+			if ( preg_match('/([UN]?)\s+(\d+)\)/', $header, $match) ) {
+				$unseen = (bool) trim($match[1]);
+				$msgNum = (int) $match[2];
 
 				$eligible = $options['seen'] === null || $unseen != $options['seen'];
 				if ( $eligible ) {
 					$eligibles++;
 
 					if ( $eligibles > $options['offset'] ) {
-						$messages[] = new IMAPMessage($this, $msgNum, $header, $unseen);
+						$messages[] = new IMAPMessage($this, $msgNum, $unseen);
 					}
 				}
 
