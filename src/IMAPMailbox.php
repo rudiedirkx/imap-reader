@@ -8,17 +8,16 @@ class IMAPMailbox {
 	public $username = '';
 	public $password = '';
 	public $mailbox = '';
+	public $flags = [];
 
-	protected $imap; // IMAP resource
+	protected $imap; // imap_open() resource
 
-	public function __construct( $server, $username, $password, $mailbox = 'INBOX', $flags = array() ) {
+	public function __construct( $server, $username, $password, $mailbox = null, $flags = [] ) {
 		$this->server = $server;
 		$this->username = $username;
 		$this->password = $password;
-		$this->mailbox = $mailbox;
+		$this->mailbox = $mailbox ?: 'INBOX';
 		$this->flags = $flags;
-
-		// $this->connect();
 	}
 
 	public function connect() {
@@ -28,7 +27,7 @@ class IMAPMailbox {
 				$server .= '/' . implode('/', $this->flags);
 			}
 
-			$mailbox = '{'.$server.'}'.$this->mailbox;
+			$mailbox = '{' . $server . '}' . $this->mailbox;
 			$this->imap = imap_open($mailbox, $this->username, $this->password);
 		}
 
@@ -52,16 +51,16 @@ class IMAPMailbox {
 	}
 
 	public function messages( array $options = [] ) {
-		$options += array(
+		$options += [
 			'offset' => 0,
 			'limit' => 0,
 			'seen' => null,
 			'newestFirst' => true,
-		);
+		];
 
 		$headers = $this->headers($options['newestFirst']);
 
-		$messages = array();
+		$messages = [];
 		$eligibles = 0;
 		foreach ( $headers AS $n => $header ) {
 			if ( preg_match('/(U?)\s+(\d+)\)/', $header, $match) ) {

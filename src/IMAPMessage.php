@@ -14,11 +14,11 @@ class IMAPMessage implements IMAPMessagePartInterface {
 	public $structure; // typeof stdClass
 
 	public $subject = '';
-	public $parts = array();
-	public $parameters = array();
+	public $parts = [];
+	public $parameters = [];
 	public $plainBody;
 	public $HTMLBody;
-	public $attachments = array(); // typeof Array<IMAPMessageAttachment>
+	public $attachments = []; // typeof Array<IMAPMessageAttachment>
 
 	public function __construct( IMAPMailbox $mailbox, $msgNumber, $header, $unseen ) {
 		$this->mailbox = $mailbox;
@@ -30,7 +30,7 @@ class IMAPMessage implements IMAPMessagePartInterface {
 	protected function flags( $flags, $clear ) {
 		$cb = $clear ? 'imap_clearflag_full' : 'imap_setflag_full';
 
-		$feedback = array();
+		$feedback = [];
 		foreach ( (array)$flags AS $flag ) {
 			$flag = '\\' . ucfirst($flag);
 			$feedback[] = $cb($this->mailbox->imap(), (string)$this->msgNumber, $flag);
@@ -53,7 +53,7 @@ class IMAPMessage implements IMAPMessagePartInterface {
 	}
 
 	public function subject() {
-		if ( !$this->subject ) {
+		if ( empty($this->subject) ) {
 			$headers = $this->headers();
 
 			$subject = imap_utf8($headers->Subject);
@@ -65,7 +65,7 @@ class IMAPMessage implements IMAPMessagePartInterface {
 	}
 
 	public function headers() {
-		if ( !$this->headers ) {
+		if ( empty($this->headers) ) {
 			$this->headers = imap_headerinfo($this->mailbox->imap(), $this->msgNumber);
 		}
 
@@ -73,7 +73,7 @@ class IMAPMessage implements IMAPMessagePartInterface {
 	}
 
 	public function parts() {
-		if ( !$this->parts ) {
+		if ( empty($this->parts) ) {
 			$structure = $this->structure();
 
 			// Possibilities:
@@ -134,7 +134,7 @@ class IMAPMessage implements IMAPMessagePartInterface {
 	}
 
 	public function structure() {
-		if ( !$this->structure ) {
+		if ( empty($this->structure) ) {
 			$this->structure = imap_fetchstructure($this->mailbox->imap(), $this->msgNumber);
 		}
 
@@ -143,14 +143,14 @@ class IMAPMessage implements IMAPMessagePartInterface {
 
 	public function content() {
 		if ( count($this->parts()) == 1 ) {
-			$parts = $this->part(0)->content();
+			return $this->part(0)->content();
 		}
 
 		return '';
 	}
 
 	public function parameters() {
-		if ( !$this->parameters ) {
+		if ( empty($this->parameters) ) {
 			$structure = $this->structure();
 
 			$this->parameters['bytes'] = @$structure->bytes;

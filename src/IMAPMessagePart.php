@@ -7,8 +7,8 @@ class IMAPMessagePart implements IMAPMessagePartInterface {
 	public $section = [];
 	public $subtype = '';
 
-	public $parts = array();
-	public $parameters = array();
+	public $parts = [];
+	public $parameters = [];
 
 	public $message; // typeof IMAPMessage
 	public $structure; // typeof stdClass
@@ -73,7 +73,7 @@ class IMAPMessagePart implements IMAPMessagePartInterface {
 	}
 
 	public function parameters() {
-		if ( !$this->parameters ) {
+		if ( empty($this->parameters) ) {
 			$structure = $this->structure();
 
 			$this->parameters['bytes'] = @$structure->bytes;
