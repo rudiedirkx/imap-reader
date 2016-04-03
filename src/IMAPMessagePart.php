@@ -3,18 +3,14 @@
 namespace rdx\imap;
 
 use rdx\imap\IMAPMessage;
-use rdx\imap\IMAPMessagePart;
+use rdx\imap\IMAPMessageContent;
 
-class IMAPMessagePart implements IMAPMessagePartInterface {
+class IMAPMessagePart extends IMAPMessageContent implements IMAPMessagePartInterface {
 
 	protected $section = [];
 	protected $subtype = '';
 
-	protected $parts = [];
-	protected $parameters = [];
-
-	protected $message; // typeof IMAPMessage
-	protected $structure; // typeof stdClass
+	protected $message; // rdx\imap\IMAPMessage
 	protected $skippedParts = []; // Array<stdClass>
 
 	public function __construct( IMAPMessage $message, $structure, array $section ) {
@@ -27,7 +23,7 @@ class IMAPMessagePart implements IMAPMessagePartInterface {
 	}
 
 	public function parts() {
-		if ( !empty($this->structure->parts) ) {
+		if ( empty($this->parts) && !empty($this->structure->parts) ) {
 			$parts = $this->structure->parts;
 
 			while ( count($parts) == 1 && empty($parts[0]->bytes) && !empty($parts[0]->parts) ) {
@@ -42,58 +38,12 @@ class IMAPMessagePart implements IMAPMessagePartInterface {
 				);
 			}
 		}
-	}
 
-	public function allParts( $withContainers = false ) {
-		$parts = [];
-		$iterate = function($message) use (&$iterate, &$parts, $withContainers) {
-			foreach ( $message->parts() as $part ) {
-				if ( $part->parts() ) {
-					if ( $withContainers ) {
-						$parts[] = $part;
-					}
-
-					$iterate($part);
-				}
-				else {
-					$parts[] = $part;
-				}
-			}
-		};
-
-		$iterate($this);
-		return $parts;
-	}
-
-	public function part( $index ) {
-		$parts = $this->parts();
-		return @$parts[$index];
+		return $this->parts;
 	}
 
 	public function structure() {
 		return $this->structure;
-	}
-
-	public function parameters() {
-		if ( empty($this->parameters) ) {
-			$structure = $this->structure();
-
-			$this->parameters['bytes'] = @$structure->bytes;
-
-			foreach ((array) @$structure->parameters as $param) {
-				$this->parameters[ strtolower($param->attribute) ] = $param->value;
-			}
-			foreach ((array) @$structure->dparameters as $param) {
-				$this->parameters[ strtolower($param->attribute) ] = $param->value;
-			}
-		}
-
-		return $this->parameters;
-	}
-
-	public function parameter( $name ) {
-		$parameters = $this->parameters();
-		return @$parameters[ strtolower($name) ];
 	}
 
 	public function content() {
