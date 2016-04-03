@@ -86,7 +86,7 @@ foreach ($messages as $message) {
 	echo implode("\n", $message->simpleStructure()) . "\n\n";
 
 	echo "\n\nDELIVERY-STATUS:\n";
-	echo $message->deliveryStatus(true);
+	echo $message->subtypeContent('DELIVERY-STATUS', true);
 	echo "\n\nPLAIN:\n";
 	echo $message->text(true);
 	echo "\n\nHTML:\n";

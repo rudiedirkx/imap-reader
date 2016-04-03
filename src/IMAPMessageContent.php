@@ -83,8 +83,4 @@ abstract class IMAPMessageContent {
 		return $this->subtypeContent($this->mailbox()->getHtmlSubtypes(), $recursive);
 	}
 
-	public function deliveryStatus( $recursive = true ) {
-		return $this->subtypeContent('DELIVERY-STATUS', $recursive);
-	}
-
 }

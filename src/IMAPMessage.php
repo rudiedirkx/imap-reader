@@ -15,10 +15,7 @@ class IMAPMessage extends IMAPMessageContent implements IMAPMessagePartInterface
 
 	protected $headers = [];
 	protected $subject = '';
-
-	// protected $plainBody;
-	// protected $HTMLBody;
-	// protected $attachments = []; // Array<IMAPMessageAttachment>
+	protected $subtype = '';
 
 	public function __construct( IMAPMailbox $mailbox, $msgNumber, $unseen = null ) {
 		$this->mailbox = $mailbox;

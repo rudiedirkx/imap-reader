@@ -61,6 +61,10 @@ class IMAPMessagePart extends IMAPMessageContent implements IMAPMessagePartInter
 		return $this->message;
 	}
 
+	public function mailbox() {
+		return $this->message()->mailbox();
+	}
+
 	public function section() {
 		return $this->section;
 	}

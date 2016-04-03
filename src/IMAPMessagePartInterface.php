@@ -4,6 +4,8 @@ namespace rdx\imap;
 
 interface IMAPMessagePartInterface {
 
+	public function mailbox();
+
 	public function structure();
 	public function section();
 	public function parts();
@@ -18,6 +20,5 @@ interface IMAPMessagePartInterface {
 
 	public function text();
 	public function html();
-	public function deliveryStatus();
 
 }
