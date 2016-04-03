@@ -56,12 +56,22 @@ abstract class IMAPMessageContent {
 		return @$parameters[ strtolower($name) ];
 	}
 
-	protected function subtypeContent( $subtypes, $recursive ) {
+	public function subtypePart( $subtypes, $recursive ) {
 		$subtypes = (array) $subtypes;
-		foreach ( $this->parts($recursive) as $part ) {
-			if ( in_array($part->subtype, $subtypes) ) {
-				return $part->content();
+		$method = [$this, $recursive ? 'allParts' : 'parts'];
+		$parts = call_user_func($method);
+		array_unshift($parts, $this);
+
+		foreach ( $parts as $part ) {
+			if ( in_array($part->subtype(), $subtypes) ) {
+				return $part;
 			}
+		}
+	}
+
+	public function subtypeContent( $subtypes, $recursive ) {
+		if ( $part = $this->subtypePart($subtypes, $recursive) ) {
+			return $part->content();
 		}
 	}
 

@@ -21,7 +21,7 @@ echo "\n";
 // print_r($mbox->headers(false));
 // echo "\n";
 
-if ( true ) {
+if ( false ) {
 	// LOAD MANY
 	$messages = $mbox->messages(['newestFirst' => false, 'limit' => 20]);
 	var_dump(count($messages));
@@ -29,7 +29,7 @@ if ( true ) {
 }
 else {
 	// LOAD ONE
-	$messages = [$mbox->message(11)];
+	$messages = [$mbox->message(4)];
 }
 
 foreach ($messages as $message) {
@@ -85,7 +85,12 @@ foreach ($messages as $message) {
 
 	echo implode("\n", $message->simpleStructure()) . "\n\n";
 
-	echo $message->deliveryStatus();
+	echo "\n\nDELIVERY-STATUS:\n";
+	echo $message->deliveryStatus(true);
+	echo "\n\nPLAIN:\n";
+	echo $message->text(true);
+	echo "\n\nHTML:\n";
+	echo $message->html(true);
 
 	// foreach ($message->allParts(true) as $part) {
 	// 	echo "\n\n\n\n\n\n\n\n\n\n\n\n\n";

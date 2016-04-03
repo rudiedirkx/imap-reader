@@ -5,6 +5,7 @@ namespace rdx\imap;
 interface IMAPMessagePartInterface {
 
 	public function structure();
+	public function section();
 	public function parts();
 	public function allParts();
 	public function part( $index );

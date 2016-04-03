@@ -125,6 +125,19 @@ class IMAPMessage extends IMAPMessageContent implements IMAPMessagePartInterface
 		return $this->structure;
 	}
 
+	public function subtype() {
+		if ( empty($this->subtype) ) {
+			$structure = $this->structure();
+			$this->subtype = @$structure->subtype ?: '';
+		}
+
+		return $this->subtype;
+	}
+
+	public function section() {
+		return [];
+	}
+
 	public function content() {
 		if ( count($this->parts()) == 1 ) {
 			return $this->part(0)->content();
