@@ -12,5 +12,8 @@ interface IMAPTransportInterface {
 	public function setflag( $msgNumber, $flag );
 	public function fetchstructure( $msgNumber );
 	public function fetchbody( $msgNumber, $section );
+	public function expunge();
+	public function delete( $msgNumber );
+	public function mailboxmsginfo();
 
 }

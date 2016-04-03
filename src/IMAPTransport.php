@@ -54,4 +54,16 @@ class IMAPTransport implements IMAPTransportInterface {
 		return imap_fetchbody($this->resource, $msgNumber, implode('.', $section), FT_PEEK);
 	}
 
+	public function expunge() {
+		return imap_expunge($this->resource);
+	}
+
+	public function delete( $msgNumber ) {
+		return imap_delete($this->resource, $msgNumber);
+	}
+
+	public function mailboxmsginfo() {
+		return imap_mailboxmsginfo($this->resource);
+	}
+
 }
