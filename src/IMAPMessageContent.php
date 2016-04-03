@@ -56,4 +56,25 @@ abstract class IMAPMessageContent {
 		return @$parameters[ strtolower($name) ];
 	}
 
+	protected function subtypeContent( $subtypes, $recursive ) {
+		$subtypes = (array) $subtypes;
+		foreach ( $this->parts($recursive) as $part ) {
+			if ( in_array($part->subtype, $subtypes) ) {
+				return $part->content();
+			}
+		}
+	}
+
+	public function text( $recursive = false ) {
+		return $this->subtypeContent($this->mailbox()->getTextSubtypes(), $recursive);
+	}
+
+	public function html( $recursive = false ) {
+		return $this->subtypeContent($this->mailbox()->getHtmlSubtypes(), $recursive);
+	}
+
+	public function deliveryStatus( $recursive = true ) {
+		return $this->subtypeContent('DELIVERY-STATUS', $recursive);
+	}
+
 }

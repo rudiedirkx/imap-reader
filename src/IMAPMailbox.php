@@ -104,6 +104,14 @@ class IMAPMailbox {
 		return $messages;
 	}
 
+	public function getTextSubtypes() {
+		return ['PLAIN'];
+	}
+
+	public function getHtmlSubtypes() {
+		return ['HTML'];
+	}
+
 	public function msgInfo() {
 		return $this->imap()->mailboxmsginfo();
 	}

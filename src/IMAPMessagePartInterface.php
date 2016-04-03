@@ -15,6 +15,8 @@ interface IMAPMessagePartInterface {
 	// public function attachments();
 	// public function allAttachments();
 
-	// public function text();
-	// public function html();
+	public function text();
+	public function html();
+	public function deliveryStatus();
+
 }

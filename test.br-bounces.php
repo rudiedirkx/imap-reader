@@ -83,7 +83,9 @@ foreach ($messages as $message) {
 	// continue;
 
 
-	echo implode("\n", $message->simpleStructure());
+	echo implode("\n", $message->simpleStructure()) . "\n\n";
+
+	echo $message->deliveryStatus();
 
 	// foreach ($message->allParts(true) as $part) {
 	// 	echo "\n\n\n\n\n\n\n\n\n\n\n\n\n";
