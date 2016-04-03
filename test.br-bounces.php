@@ -15,12 +15,15 @@ catch (\Exception $ex) {
 	exit($ex->getMessage());
 }
 
+print_r($mbox->msgInfo());
+echo "\n";
+
 // print_r($mbox->headers(false));
 // echo "\n";
 
 if ( true ) {
 	// LOAD MANY
-	$messages = $mbox->messages(['newestFirst' => false, 'limit' => 11]);
+	$messages = $mbox->messages(['newestFirst' => false, 'limit' => 20]);
 	var_dump(count($messages));
 	echo "\n";
 }

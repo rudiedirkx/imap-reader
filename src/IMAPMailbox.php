@@ -104,4 +104,12 @@ class IMAPMailbox {
 		return $messages;
 	}
 
+	public function msgInfo() {
+		return $this->imap()->mailboxmsginfo();
+	}
+
+	public function vacuum() {
+		return $this->imap()->expunge();
+	}
+
 }

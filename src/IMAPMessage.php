@@ -133,6 +133,10 @@ class IMAPMessage extends IMAPMessageContent implements IMAPMessagePartInterface
 		return '';
 	}
 
+	public function delete() {
+		return $this->mailbox()->imap()->delete($this->msgNumber);
+	}
+
 	public function simpleStructure() {
 		$parts = [];
 		foreach ( $this->allParts(true) as $part ) {
