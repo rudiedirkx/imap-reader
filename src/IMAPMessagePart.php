@@ -2,6 +2,9 @@
 
 namespace rdx\imap;
 
+use rdx\imap\IMAPMessage;
+use rdx\imap\IMAPMessagePart;
+
 class IMAPMessagePart implements IMAPMessagePartInterface {
 
 	protected $section = [];
@@ -20,8 +23,12 @@ class IMAPMessagePart implements IMAPMessagePartInterface {
 		$this->section = $section;
 		$this->subtype = strtoupper($structure->subtype);
 
-		if ( !empty($structure->parts) ) {
-			$parts = $structure->parts;
+		$this->parts();
+	}
+
+	public function parts() {
+		if ( !empty($this->structure->parts) ) {
+			$parts = $this->structure->parts;
 
 			while ( count($parts) == 1 && empty($parts[0]->bytes) && !empty($parts[0]->parts) ) {
 				$this->skippedParts[] = $parts[0];
@@ -29,17 +36,12 @@ class IMAPMessagePart implements IMAPMessagePartInterface {
 			}
 
 			foreach ( $parts as $n => $part ) {
-				$this->parts[] = new IMAPMessagePart(
-					$this->message(),
+				$this->parts[] = $this->message()->createMessagePart(
 					$part,
 					array_merge($this->section(), [$n+1])
 				);
 			}
 		}
-	}
-
-	public function parts() {
-		return $this->parts;
 	}
 
 	public function allParts( $withContainers = false ) {
@@ -95,11 +97,9 @@ class IMAPMessagePart implements IMAPMessagePartInterface {
 	}
 
 	public function content() {
-		$body = imap_fetchbody(
-			$this->message()->mailbox()->imap(),
+		$body = $this->message()->mailbox()->imap()->fetchbody(
 			$this->message()->msgNumber(),
-			implode('.', $this->section()),
-			FT_PEEK
+			implode('.', $this->section())
 		);
 		return $this->decode($body);
 	}

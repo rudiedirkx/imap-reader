@@ -2,6 +2,9 @@
 
 namespace rdx\imap;
 
+use rdx\imap\IMAPMailbox;
+use rdx\imap\IMAPMessagePart;
+
 class IMAPMessage implements IMAPMessagePartInterface {
 
 	protected $mailbox; // typeof IMAPMailbox
@@ -30,12 +33,12 @@ class IMAPMessage implements IMAPMessagePartInterface {
 	}
 
 	protected function flags( $flags, $clear ) {
-		$cb = $clear ? 'imap_clearflag_full' : 'imap_setflag_full';
+		$cb = [$this->imap(), $clear ? 'clearflag' : 'setflag'];
 
 		$feedback = [];
 		foreach ( (array)$flags AS $flag ) {
 			$flag = '\\' . ucfirst($flag);
-			$feedback[] = $cb($this->mailbox()->imap(), (string)$this->msgNumber, $flag);
+			$feedback[] = call_user_func($cb, $this->msgNumber, $flag);
 		}
 
 		return is_array($flags) ? $feedback : $feedback[0];
@@ -55,7 +58,7 @@ class IMAPMessage implements IMAPMessagePartInterface {
 
 	public function subject() {
 		if ( empty($this->subject) ) {
-			$subject = imap_utf8($this->header('subject'));
+			$subject = $this->mailbox()->imap()->utf8($this->header('subject'));
 			$this->subject = trim($subject);
 		}
 
@@ -64,7 +67,7 @@ class IMAPMessage implements IMAPMessagePartInterface {
 
 	public function headers() {
 		if ( empty($this->headers) ) {
-			$headers = imap_headerinfo($this->mailbox()->imap(), $this->msgNumber);
+			$headers = $this->mailbox()->imap()->headerinfo($this->msgNumber);
 			foreach ( $headers as $name => $value ) {
 				$this->headers[ strtolower($name) ] = $value;
 			}
@@ -76,6 +79,10 @@ class IMAPMessage implements IMAPMessagePartInterface {
 	public function header( $name ) {
 		$headers = $this->headers();
 		return @$headers[ strtolower($name) ];
+	}
+
+	public function createMessagePart( $structure, $section ) {
+		return new IMAPMessagePart($this, $structure, $section);
 	}
 
 	public function parts() {
@@ -94,16 +101,14 @@ class IMAPMessage implements IMAPMessagePartInterface {
 			// - JPEG
 
 			if ( empty($structure->parts) ) {
-				$this->parts[] = new IMAPMessagePart(
-					$this,
+				$this->parts[] = $this->createMessagePart(
 					$structure,
 					[1]
 				);
 			}
 			else {
 				foreach ($structure->parts as $n => $part) {
-					$this->parts[] = new IMAPMessagePart(
-						$this,
+					$this->parts[] = $this->createMessagePart(
 						$part,
 						[$n+1]
 					);
@@ -142,7 +147,7 @@ class IMAPMessage implements IMAPMessagePartInterface {
 
 	public function structure() {
 		if ( empty($this->structure) ) {
-			$this->structure = imap_fetchstructure($this->mailbox()->imap(), $this->msgNumber);
+			$this->structure = $this->mailbox()->imap()->fetchstructure($this->msgNumber);
 		}
 
 		return $this->structure;

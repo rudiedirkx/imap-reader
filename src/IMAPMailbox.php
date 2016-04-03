@@ -2,6 +2,9 @@
 
 namespace rdx\imap;
 
+use rdx\imap\IMAPMessage;
+use rdx\imap\IMAPTransport;
+
 class IMAPMailbox {
 
 	protected $server = '';
@@ -10,25 +13,27 @@ class IMAPMailbox {
 	protected $mailbox = '';
 	protected $flags = [];
 
-	protected $imap; // imap_open() resource
+	protected $imap; // rdx\imap\IMAPTransport
 
-	public function __construct( $server, $username, $password, $mailbox = null, $flags = [] ) {
+	public function __construct( $server, $username, $password, $mailbox = null, array $flags = [] ) {
 		$this->server = $server;
 		$this->username = $username;
 		$this->password = $password;
 		$this->mailbox = $mailbox ?: 'INBOX';
 		$this->flags = $flags;
+
+		$this->connect();
 	}
 
 	public function connect() {
 		if ( !$this->imap ) {
-			$server = $this->server;
-			if ( !empty($this->flags) ) {
-				$server .= '/' . implode('/', $this->flags);
-			}
-
-			$mailbox = '{' . $server . '}' . $this->mailbox;
-			$this->imap = imap_open($mailbox, $this->username, $this->password);
+			$this->imap = $this->createTransport()->open(
+				$this->server,
+				$this->username,
+				$this->password,
+				$this->mailbox,
+				$this->flags
+			);
 		}
 
 		return $this->imap;
@@ -38,10 +43,18 @@ class IMAPMailbox {
 		return $this->imap;
 	}
 
+	public function createTransport() {
+		return new IMAPTransport;
+	}
+
+	public function createMessage( $msgNum, $unseen = null ) {
+		return new IMAPMessage($this, $msgNum, $unseen);
+	}
+
 	public function headers( $newestFirst = true ) {
 		$this->connect();
 
-		$headers = imap_headers($this->imap());
+		$headers = $this->imap()->headers();
 
 		if ( $newestFirst ) {
 			$headers = array_reverse($headers);
@@ -53,7 +66,7 @@ class IMAPMailbox {
 	public function message( $msgNum ) {
 		$this->connect();
 
-		return new IMAPMessage($this, $msgNum);
+		return $this->createMessage($msgNum);
 	}
 
 	public function messages( array $options = [] ) {
@@ -78,7 +91,7 @@ class IMAPMailbox {
 					$eligibles++;
 
 					if ( $eligibles > $options['offset'] ) {
-						$messages[] = new IMAPMessage($this, $msgNum, $unseen);
+						$messages[] = $this->createMessage($msgNum, $unseen);
 					}
 				}
 

@@ -1,5 +1,6 @@
 <?php
 
+use rdx\imap\IMAPException;
 use rdx\imap\IMAPMailbox;
 
 require 'env.php';
@@ -7,7 +8,12 @@ require 'autoload.php';
 
 header('Content-type: text/plain');
 
-$mbox = new IMAPMailbox(IMAP_BOUNCES_HOST, IMAP_BOUNCES_USER, IMAP_BOUNCES_PASS, 'INBOX', ['novalidate-cert']);
+try {
+	$mbox = new IMAPMailbox(IMAP_BOUNCES_HOST, IMAP_BOUNCES_USER, IMAP_BOUNCES_PASS, 'INBOX', ['ssl', 'novalidate-cert']);
+}
+catch (\Exception $ex) {
+	exit($ex->getMessage());
+}
 
 // print_r($mbox->headers(false));
 // echo "\n";

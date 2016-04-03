@@ -4,4 +4,3 @@ To do:
 * Attachments
 * Get HTML mail
 * Get TEXT mail
-* Every php function call in a separate method
