@@ -21,7 +21,7 @@ echo "\n";
 // print_r($mbox->headers(false));
 // echo "\n";
 
-if ( false ) {
+if ( true ) {
 	// LOAD MANY
 	$messages = $mbox->messages(['newestFirst' => false, 'limit' => 20]);
 	var_dump(count($messages));
@@ -83,14 +83,30 @@ foreach ($messages as $message) {
 	// continue;
 
 
-	echo implode("\n", $message->simpleStructure()) . "\n\n";
+	// echo implode("\n", $message->simpleStructure()) . "\n\n";
+
+	$body = $message->subtypeContent('DELIVERY-STATUS', true);
+	$failed = $body && is_int(strpos($body, 'Action: failed'));
 
 	echo "\n\nDELIVERY-STATUS:\n";
-	echo $message->subtypeContent('DELIVERY-STATUS', true);
-	echo "\n\nPLAIN:\n";
-	echo $message->text(true);
-	echo "\n\nHTML:\n";
-	echo $message->html(true);
+	echo trim($body) . "\n\n";
+
+	if ( $failed ) {
+		$addresses = [];
+		if (preg_match_all('#(Final|Original)\-recipient:\s*rfc822;([^\s]+)#i', $body, $matches)) {
+			$addresses = array_values(array_unique($matches[2]));
+		}
+		echo "failed:\n";
+		print_r($addresses);
+	}
+	else {
+		echo "not failed\n";
+	}
+
+	// echo "\n\nPLAIN:\n";
+	// echo $message->text(true);
+	// echo "\n\nHTML:\n";
+	// echo $message->html(true);
 
 	// foreach ($message->allParts(true) as $part) {
 	// 	echo "\n\n\n\n\n\n\n\n\n\n\n\n\n";
