@@ -23,9 +23,8 @@ class IMAPMessagePart extends IMAPMessageContent implements IMAPMessagePartInter
 	}
 
 	public function parts() {
-		if ( empty($this->parts) && !empty($this->structure->parts) ) {
-			$parts = $this->structure->parts;
-
+		if ( empty($this->parts) && !empty($this->structure()->parts) ) {
+			$parts = $this->structure()->parts;
 			while ( count($parts) == 1 && empty($parts[0]->bytes) && !empty($parts[0]->parts) ) {
 				$this->skippedParts[] = $parts[0];
 				$parts = $parts[0]->parts;

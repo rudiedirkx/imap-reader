@@ -31,7 +31,7 @@ class IMAPMessage extends IMAPMessageContent implements IMAPMessagePartInterface
 	}
 
 	protected function flags( $flags, $clear ) {
-		$cb = [$this->imap(), $clear ? 'clearflag' : 'setflag'];
+		$cb = [$this->mailbox()->imap(), $clear ? 'clearflag' : 'setflag'];
 
 		$feedback = [];
 		foreach ( (array)$flags AS $flag ) {
