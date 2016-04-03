@@ -83,7 +83,7 @@ foreach ($messages as $message) {
 	// continue;
 
 
-	// echo implode("\n", $message->simpleStructure()) . "\n\n";
+	echo implode("\n", $message->simpleStructure()) . "\n\n";
 
 	$body = $message->subtypeContent('DELIVERY-STATUS', true);
 	$failed = $body && is_int(strpos($body, 'Action: failed'));
