@@ -35,14 +35,14 @@ class IMAPTransport implements IMAPTransportInterface {
 	}
 
 	public function headerinfo( $msgNumber ) {
-		return imap_headerinfo($this->resource, $msgNumber);
+		return $this->iteratorToLowercaseArray(imap_headerinfo($this->resource, $msgNumber));
 	}
 
-	public function clearflag( $msgNumber, $flag ) {
+	public function unflag( $msgNumber, $flag ) {
 		return imap_clearflag_full($this->resource, $msgNumber, $flag);
 	}
 
-	public function setflag( $msgNumber, $flag ) {
+	public function flag( $msgNumber, $flag ) {
 		return imap_setflag_full($this->resource, $msgNumber, $flag);
 	}
 
@@ -51,7 +51,7 @@ class IMAPTransport implements IMAPTransportInterface {
 	}
 
 	public function fetchbody( $msgNumber, $section ) {
-		return imap_fetchbody($this->resource, $msgNumber, $section, FT_PEEK);
+		return quoted_printable_decode(imap_fetchbody($this->resource, $msgNumber, $section, FT_PEEK));
 	}
 
 	public function expunge() {
@@ -63,7 +63,16 @@ class IMAPTransport implements IMAPTransportInterface {
 	}
 
 	public function mailboxmsginfo() {
-		return imap_mailboxmsginfo($this->resource);
+		return (object) $this->iteratorToLowercaseArray(imap_mailboxmsginfo($this->resource));
+	}
+
+	protected function iteratorToLowercaseArray( $iterator ) {
+		$data = [];
+		foreach ( $iterator as $name => $value ) {
+			$data[ strtolower($name) ] = $value;
+		}
+
+		return $data;
 	}
 
 }

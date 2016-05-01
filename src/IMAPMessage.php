@@ -28,7 +28,7 @@ class IMAPMessage extends IMAPMessageContent implements IMAPMessagePartInterface
 	}
 
 	protected function flags( $flags, $clear ) {
-		$cb = [$this->mailbox()->imap(), $clear ? 'clearflag' : 'setflag'];
+		$cb = [$this->mailbox()->imap(), $clear ? 'unflag' : 'flag'];
 
 		$feedback = [];
 		foreach ( (array)$flags AS $flag ) {
@@ -62,10 +62,7 @@ class IMAPMessage extends IMAPMessageContent implements IMAPMessagePartInterface
 
 	public function headers() {
 		if ( empty($this->headers) ) {
-			$headers = $this->mailbox()->imap()->headerinfo($this->msgNumber);
-			foreach ( $headers as $name => $value ) {
-				$this->headers[ strtolower($name) ] = $value;
-			}
+			$this->headers = $this->mailbox()->imap()->headerinfo($this->msgNumber);
 		}
 
 		return $this->headers;

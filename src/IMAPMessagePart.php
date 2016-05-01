@@ -46,15 +46,10 @@ class IMAPMessagePart extends IMAPMessageContent implements IMAPMessagePartInter
 	}
 
 	public function content() {
-		$body = $this->message()->mailbox()->imap()->fetchbody(
+		return $this->message()->mailbox()->imap()->fetchbody(
 			$this->message()->msgNumber(),
 			implode('.', $this->section())
 		);
-		return $this->decode($body);
-	}
-
-	public function decode( $content ) {
-		return quoted_printable_decode($content);
 	}
 
 	public function message() {
