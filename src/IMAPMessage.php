@@ -31,7 +31,7 @@ class IMAPMessage extends IMAPMessageContent implements IMAPMessagePartInterface
 		$cb = [$this->mailbox()->imap(), $clear ? 'unflag' : 'flag'];
 
 		$feedback = [];
-		foreach ( (array)$flags AS $flag ) {
+		foreach ( (array) $flags AS $flag ) {
 			$flag = '\\' . ucfirst($flag);
 			$feedback[] = call_user_func($cb, $this->msgNumber, $flag);
 		}
@@ -99,10 +99,10 @@ class IMAPMessage extends IMAPMessageContent implements IMAPMessagePartInterface
 				);
 			}
 			else {
-				foreach ($structure->parts as $n => $part) {
+				foreach ( $structure->parts as $n => $part ) {
 					$this->parts[] = $this->createMessagePart(
 						$part,
-						[$n+1]
+						[$n + 1]
 					);
 				}
 			}

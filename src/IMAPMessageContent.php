@@ -10,7 +10,7 @@ abstract class IMAPMessageContent {
 
 	public function allParts( $withContainers = false ) {
 		$parts = [];
-		$iterate = function($message) use (&$iterate, &$parts, $withContainers) {
+		$iterate = function( $message ) use (&$iterate, &$parts, $withContainers) {
 			foreach ( $message->parts() as $part ) {
 				if ( $part->parts() ) {
 					if ( $withContainers ) {
@@ -40,10 +40,10 @@ abstract class IMAPMessageContent {
 
 			$this->parameters['bytes'] = @$structure->bytes;
 
-			foreach ((array) @$structure->parameters as $param) {
+			foreach ( (array) @$structure->parameters as $param ) {
 				$this->parameters[ strtolower($param->attribute) ] = $param->value;
 			}
-			foreach ((array) @$structure->dparameters as $param) {
+			foreach ( (array) @$structure->dparameters as $param ) {
 				$this->parameters[ strtolower($param->attribute) ] = $param->value;
 			}
 		}

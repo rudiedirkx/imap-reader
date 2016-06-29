@@ -95,7 +95,7 @@ class IMAPMailbox {
 					}
 				}
 
-				if ( $options['limit'] && isset($messages[$options['limit']-1]) ) {
+				if ( $options['limit'] && isset($messages[ $options['limit'] - 1 ]) ) {
 					break;
 				}
 			}

@@ -33,7 +33,7 @@ class IMAPMessagePart extends IMAPMessageContent implements IMAPMessagePartInter
 			foreach ( $parts as $n => $part ) {
 				$this->parts[] = $this->message()->createMessagePart(
 					$part,
-					array_merge($this->section(), [$n+1])
+					array_merge($this->section(), [$n + 1])
 				);
 			}
 		}
