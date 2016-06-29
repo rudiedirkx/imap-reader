@@ -5,7 +5,7 @@ namespace rdx\imap;
 interface IMAPTransportInterface {
 
 	/**
-	 * @return \rdx\imap\IMAPTransportInterface
+	 * @return rdx\imap\IMAPTransportInterface
 	 */
 	public function open( $server, $username, $password, $mailbox, array $flags );
 

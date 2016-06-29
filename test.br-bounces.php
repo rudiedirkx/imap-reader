@@ -9,7 +9,7 @@ require 'autoload.php';
 header('Content-type: text/plain');
 
 try {
-	$mbox = new IMAPMailbox(IMAP_BOUNCES_HOST, IMAP_BOUNCES_USER, IMAP_BOUNCES_PASS, 'INBOX', ['ssl', 'novalidate-cert']);
+	$mbox = new IMAPMailbox(IMAP_BOUNCES_HOST, IMAP_BOUNCES_USER, IMAP_BOUNCES_PASS, 'INBOX', ['ssl']);
 }
 catch (\Exception $ex) {
 	exit($ex->getMessage());
