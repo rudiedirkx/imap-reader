@@ -2,9 +2,6 @@
 
 namespace rdx\imap;
 
-use rdx\imap\IMAPMessage;
-use rdx\imap\IMAPMessageContent;
-
 class IMAPMessagePart extends IMAPMessageContent implements IMAPMessagePartInterface {
 
 	protected $section = [];

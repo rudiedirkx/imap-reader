@@ -2,9 +2,6 @@
 
 namespace rdx\imap;
 
-use rdx\imap\IMAPException;
-use rdx\imap\IMAPTransportInterface;
-
 class IMAPTransport implements IMAPTransportInterface {
 
 	protected $resource; // imap_open() resource

@@ -2,9 +2,6 @@
 
 namespace rdx\imap;
 
-use rdx\imap\IMAPMessage;
-use rdx\imap\IMAPTransport;
-
 class IMAPMailbox {
 
 	protected $server = '';
@@ -13,7 +10,10 @@ class IMAPMailbox {
 	protected $mailbox = '';
 	protected $flags = [];
 
-	protected $imap; // rdx\imap\IMAPTransport
+	/**
+	 * @var IMAPTransport
+	 */
+	protected $imap;
 
 	public function __construct( $server, $username, $password, $mailbox = null, array $flags = [] ) {
 		$this->server = $server;

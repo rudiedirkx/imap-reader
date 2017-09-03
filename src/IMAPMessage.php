@@ -2,13 +2,12 @@
 
 namespace rdx\imap;
 
-use rdx\imap\IMAPMailbox;
-use rdx\imap\IMAPMessageContent;
-use rdx\imap\IMAPMessagePart;
-
 class IMAPMessage extends IMAPMessageContent implements IMAPMessagePartInterface {
 
-	protected $mailbox; // rdx\imap\IMAPMailbox
+	/**
+	 * @var IMAPMailbox
+	 */
+	protected $mailbox;
 
 	protected $msgNumber = 1; // starts at 1, not 0
 	protected $unseen = true;
