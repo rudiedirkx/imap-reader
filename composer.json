@@ -10,13 +10,14 @@
         }
     ],
     "minimum-stability": "dev",
-    "require": {},
+    "require": {
+        "ext-gd": "*"
+    },
     "autoload": {
         "psr-4": {
             "rdx\\imap\\": "src"
         }
     },
     "require-dev": {
-        "etsy/phan": "^0.9.4"
     }
 }
