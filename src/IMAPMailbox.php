@@ -25,6 +25,7 @@ class IMAPMailbox {
 		$this->connect();
 	}
 
+	/** @return IMAPTransport */
 	public function connect() {
 		if ( !$this->imap ) {
 			$this->imap = $this->createTransport()->open(
@@ -39,18 +40,22 @@ class IMAPMailbox {
 		return $this->imap;
 	}
 
+	/** @return IMAPTransport */
 	public function imap() {
 		return $this->imap;
 	}
 
+	/** @return IMAPTransport */
 	public function createTransport() {
 		return new IMAPTransport;
 	}
 
+	/** @return IMAPMessage */
 	public function createMessage( $msgNum, $unseen = null ) {
 		return new IMAPMessage($this, $msgNum, $unseen);
 	}
 
+	/** @return string[] */
 	public function headers( $newestFirst = true ) {
 		$this->connect();
 
@@ -63,12 +68,14 @@ class IMAPMailbox {
 		return $headers;
 	}
 
+	/** @return IMAPMessage */
 	public function message( $msgNum ) {
 		$this->connect();
 
 		return $this->createMessage($msgNum);
 	}
 
+	/** @return IMAPMessage[] */
 	public function messages( array $options = [] ) {
 		$options += [
 			'offset' => 0,
@@ -104,18 +111,22 @@ class IMAPMailbox {
 		return $messages;
 	}
 
+	/** @return string[] */
 	public function getTextSubtypes() {
 		return ['PLAIN'];
 	}
 
+	/** @return string[] */
 	public function getHtmlSubtypes() {
 		return ['HTML'];
 	}
 
+	/** @return object */
 	public function msgInfo() {
 		return $this->imap()->mailboxmsginfo();
 	}
 
+	/** @return bool */
 	public function vacuum() {
 		return $this->imap()->expunge();
 	}

@@ -4,16 +4,19 @@ namespace rdx\imap;
 
 abstract class IMAPMessageContent implements IMAPMessagePartInterface {
 
-	protected $structure; // stdClass
-	protected $parts = []; // Array<rdx\imap\IMAPMessagePart>
+	/** @var object */
+	protected $structure;
+
+	/** @var IMAPMessagePart[] */
+	protected $parts = [];
+
+	/** @var array */
 	protected $parameters = [];
 
+	/** @return IMAPMessagePartInterface[] */
 	abstract public function parts();
 
-	/**
-	 * @param bool $withContainers
-	 * @return IMAPMessagePartInterface[]
-	 */
+	/** @return IMAPMessagePartInterface[] */
 	public function allParts( $withContainers = false ) {
 		$parts = [];
 		$iterate = function( IMAPMessagePartInterface $message ) use (&$iterate, &$parts, $withContainers) {
@@ -35,18 +38,13 @@ abstract class IMAPMessageContent implements IMAPMessagePartInterface {
 		return $parts;
 	}
 
-	/**
-	 * @param int $index
-	 * @return IMAPMessagePartInterface
-	 */
+	/** @return IMAPMessagePartInterface */
 	public function part( $index ) {
 		$parts = $this->parts();
 		return @$parts[$index];
 	}
 
-	/**
-	 * @return array
-	 */
+	/** @return array */
 	public function parameters() {
 		if ( empty($this->parameters) ) {
 			$structure = $this->structure();
@@ -64,20 +62,13 @@ abstract class IMAPMessageContent implements IMAPMessagePartInterface {
 		return $this->parameters;
 	}
 
-	/**
-	 * @param string $name
-	 * @return mixed
-	 */
+	/** @return mixed */
 	public function parameter( $name ) {
 		$parameters = $this->parameters();
 		return @$parameters[ strtolower($name) ];
 	}
 
-	/**
-	 * @param array $subtypes
-	 * @param bool $recursive
-	 * @return IMAPMessagePartInterface|null
-	 */
+	/** @return IMAPMessagePartInterface */
 	public function subtypePart( $subtypes, $recursive ) {
 		$subtypes = (array) $subtypes;
 
@@ -95,11 +86,7 @@ abstract class IMAPMessageContent implements IMAPMessagePartInterface {
 		return null;
 	}
 
-	/**
-	 * @param array $subtypes
-	 * @param bool $recursive
-	 * @return string
-	 */
+	/** @return string */
 	public function subtypeContent( $subtypes, $recursive ) {
 		if ( $part = $this->subtypePart($subtypes, $recursive) ) {
 			return $part->content();
@@ -108,18 +95,12 @@ abstract class IMAPMessageContent implements IMAPMessagePartInterface {
 		return '';
 	}
 
-	/**
-	 * @param bool $recursive
-	 * @return string
-	 */
+	/** @return string */
 	public function text( $recursive = false ) {
 		return $this->subtypeContent($this->mailbox()->getTextSubtypes(), $recursive);
 	}
 
-	/**
-	 * @param bool $recursive
-	 * @return string
-	 */
+	/** @return string */
 	public function html( $recursive = false ) {
 		return $this->subtypeContent($this->mailbox()->getHtmlSubtypes(), $recursive);
 	}

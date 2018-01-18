@@ -4,57 +4,43 @@ namespace rdx\imap;
 
 interface IMAPMessagePartInterface {
 
-	/**
-	 * @return IMAPMailbox
-	 */
+	/** @return IMAPMailbox */
 	public function mailbox();
 
+	/** @return object */
 	public function structure();
 
+	/** @return array */
 	public function section();
 
-	/**
-	 * @return IMAPMessagePartInterface[]
-	 */
+	/** @return IMAPMessagePartInterface[] */
 	public function parts();
 
-	/**
-	 * @return IMAPMessagePartInterface[]
-	 */
+	/** @return IMAPMessagePartInterface[] */
 	public function allParts();
 
-	/**
-	 * @param int $index
-	 * @return IMAPMessagePartInterface
-	 */
+	/**@return IMAPMessagePartInterface */
 	public function part( $index );
 
-	/**
-	 * @return string
-	 */
+	/** @return string */
 	public function subtype();
 
-		/**
-	 * @return string
-	 */
+	/** @return string */
 	public function content();
 
-	/**
-	 * @return array
-	 */
+	/** @return array */
 	public function parameters();
 
-	/**
-	 * @param string $name
-	 * @return mixed
-	 */
+	/** @return mixed */
 	public function parameter( $name );
 
 	// public function attachments();
 	// public function allAttachments();
 
+	/** @return string */
 	public function text();
 
+	/** @return string */
 	public function html();
 
 }

@@ -12,14 +12,12 @@ Features
 * Retrieves message parts
 * Recognizes PLAIN & HTML parts
 * Recognizes attachments
-* Can decode & save attachments
 
 Uses PHP's built in [IMAP module](http://www.php.net/manual/en/ref.imap.php).
 
-This lib doesn't (yet):
+To do:
 
-* Read from POP3 server
-* Decode properly
+* Decode & save attachments
 
 Examples
 ----
@@ -38,14 +36,14 @@ See a message's structure:
 
 	foreach ($messages as $message) {
 		echo $message->simpleStructure() . "\n\n";
-
+		
 		// Could be something complex like:
 		// 1. PLAIN (517)
 		// 2. DELIVERY-STATUS (315)
 		// 3. *RFC822 (2446)
 		// 3.1. PLAIN (610)
 		// 3.2. HTML (744)
-
+		
 		// Or something simple like:
 		// 1. PLAIN (123)
 		// 2. JPEG (76543)
@@ -70,6 +68,6 @@ Find ALL JPEG files:
 
 	foreach ($messages as $message) {
 		$parts = $message->subtypeContent('JPEG', true); // Array<IMAPMessagePart>
-
+		
 		// @todo Extract binary attachments and save them
 	}

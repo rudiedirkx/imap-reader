@@ -4,16 +4,22 @@ namespace rdx\imap;
 
 class IMAPMessage extends IMAPMessageContent implements IMAPMessagePartInterface {
 
-	/**
-	 * @var IMAPMailbox
-	 */
+	/** @var IMAPMailbox */
 	protected $mailbox;
 
+	/** @var int */
 	protected $msgNumber = 1; // starts at 1, not 0
+
+	/** @var bool */
 	protected $unseen = true;
 
+	/** @var string[]  */
 	protected $headers = [];
+
+	/** @var string */
 	protected $subject = '';
+
+	/** @var string */
 	protected $subtype = '';
 
 	public function __construct( IMAPMailbox $mailbox, $msgNumber, $unseen = null ) {
@@ -26,6 +32,7 @@ class IMAPMessage extends IMAPMessageContent implements IMAPMessagePartInterface
 		}
 	}
 
+	/** @return bool|bool[] */
 	protected function flags( $flags, $clear ) {
 		$cb = [$this->mailbox()->imap(), $clear ? 'unflag' : 'flag'];
 
@@ -38,18 +45,22 @@ class IMAPMessage extends IMAPMessageContent implements IMAPMessagePartInterface
 		return is_array($flags) ? $feedback : $feedback[0];
 	}
 
+	/** @return bool|bool[] */
 	public function flag( $flags ) {
 		return $this->flags($flags, false);
 	}
 
+	/** @return bool|bool[] */
 	public function unflag( $flags ) {
 		return $this->flags($flags, true);
 	}
 
+	/** @return int */
 	public function utc() {
 		return strtotime($this->header('date'));
 	}
 
+	/** @return string */
 	public function subject() {
 		if ( empty($this->subject) ) {
 			$subject = $this->mailbox()->imap()->utf8($this->header('subject'));
@@ -59,6 +70,7 @@ class IMAPMessage extends IMAPMessageContent implements IMAPMessagePartInterface
 		return $this->subject;
 	}
 
+	/** @return string[] */
 	public function headers() {
 		if ( empty($this->headers) ) {
 			$this->headers = $this->mailbox()->imap()->headerinfo($this->msgNumber);
@@ -67,15 +79,18 @@ class IMAPMessage extends IMAPMessageContent implements IMAPMessagePartInterface
 		return $this->headers;
 	}
 
+	/** @return string */
 	public function header( $name ) {
 		$headers = $this->headers();
 		return @$headers[ strtolower($name) ];
 	}
 
+	/** @return IMAPMessagePart */
 	public function createMessagePart( $structure, $section ) {
 		return new IMAPMessagePart($this, $structure, $section);
 	}
 
+	/** @return IMAPMessagePart[] */
 	public function parts() {
 		if ( empty($this->parts) ) {
 			$structure = $this->structure();
@@ -110,6 +125,7 @@ class IMAPMessage extends IMAPMessageContent implements IMAPMessagePartInterface
 		return $this->parts;
 	}
 
+	/** @return object */
 	public function structure() {
 		if ( empty($this->structure) ) {
 			$this->structure = $this->mailbox()->imap()->fetchstructure($this->msgNumber);
@@ -118,6 +134,7 @@ class IMAPMessage extends IMAPMessageContent implements IMAPMessagePartInterface
 		return $this->structure;
 	}
 
+	/** @return string */
 	public function subtype() {
 		if ( empty($this->subtype) ) {
 			$structure = $this->structure();
@@ -127,10 +144,12 @@ class IMAPMessage extends IMAPMessageContent implements IMAPMessagePartInterface
 		return $this->subtype;
 	}
 
+	/** @return int[] */
 	public function section() {
 		return [];
 	}
 
+	/** @return string */
 	public function content() {
 		if ( count($this->parts()) == 1 ) {
 			return $this->part(0)->content();
@@ -139,10 +158,12 @@ class IMAPMessage extends IMAPMessageContent implements IMAPMessagePartInterface
 		return '';
 	}
 
+	/** @return bool */
 	public function delete() {
 		return $this->mailbox()->imap()->delete($this->msgNumber);
 	}
 
+	/** @return string[] */
 	public function simpleStructure() {
 		$parts = [];
 		foreach ( $this->allParts(true) as $part ) {
@@ -163,10 +184,12 @@ class IMAPMessage extends IMAPMessageContent implements IMAPMessagePartInterface
 		return $parts;
 	}
 
+	/** @return int */
 	public function msgNumber() {
 		return $this->msgNumber;
 	}
 
+	/** @return IMAPMailbox */
 	public function mailbox() {
 		return $this->mailbox;
 	}

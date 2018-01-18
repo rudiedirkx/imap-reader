@@ -4,11 +4,17 @@ namespace rdx\imap;
 
 class IMAPMessagePart extends IMAPMessageContent implements IMAPMessagePartInterface {
 
+	/** @var int[] */
 	protected $section = [];
+
+	/** @var string */
 	protected $subtype = '';
 
-	protected $message; // rdx\imap\IMAPMessage
-	protected $skippedParts = []; // Array<stdClass>
+	/** @var IMAPMessage */
+	protected $message;
+
+	/** @var object[] */
+	protected $skippedParts = [];
 
 	public function __construct( IMAPMessage $message, $structure, array $section ) {
 		$this->message = $message;
@@ -19,6 +25,7 @@ class IMAPMessagePart extends IMAPMessageContent implements IMAPMessagePartInter
 		$this->parts();
 	}
 
+	/** @return IMAPMessagePart[] */
 	public function parts() {
 		if ( empty($this->parts) && !empty($this->structure()->parts) ) {
 			$parts = $this->structure()->parts;
@@ -38,10 +45,12 @@ class IMAPMessagePart extends IMAPMessageContent implements IMAPMessagePartInter
 		return $this->parts;
 	}
 
+	/** @return object */
 	public function structure() {
 		return $this->structure;
 	}
 
+	/** @return string */
 	public function content() {
 		return $this->message()->mailbox()->imap()->fetchbody(
 			$this->message()->msgNumber(),
@@ -49,18 +58,22 @@ class IMAPMessagePart extends IMAPMessageContent implements IMAPMessagePartInter
 		);
 	}
 
+	/** @return IMAPMessage */
 	public function message() {
 		return $this->message;
 	}
 
+	/** @return IMAPMailbox */
 	public function mailbox() {
 		return $this->message()->mailbox();
 	}
 
+	/** @return int[] */
 	public function section() {
 		return $this->section;
 	}
 
+	/** @return string */
 	public function subtype() {
 		return $this->subtype;
 	}
