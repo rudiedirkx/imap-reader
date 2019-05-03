@@ -15,10 +15,6 @@ Features
 
 Uses PHP's built in [IMAP module](http://www.php.net/manual/en/ref.imap.php).
 
-To do:
-
-* Decode & save attachments
-
 Examples
 ----
 
@@ -64,10 +60,12 @@ Read bounce mail to find rejected addresses:
 		}
 	}
 
-Find ALL JPEG files:
+Find ALL image attachments:
 
 	foreach ($messages as $message) {
-		$parts = $message->subtypeContent('JPEG', true); // Array<IMAPMessagePart>
+		$attachments = $message->subtypeParts(['JPEG', 'PNG', 'GIF'], true); // true = recursive
 		
-		// @todo Extract binary attachments and save them
+		foreach ($attachments as $att) {
+			$att->saveAttachment('/some/folder');
+		}
 	}
