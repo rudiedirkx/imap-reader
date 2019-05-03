@@ -158,6 +158,15 @@ class IMAPMessage extends IMAPMessageContent implements IMAPMessagePartInterface
 		return '';
 	}
 
+	/** @return string */
+	public function decodedContent() {
+		if ( count($this->parts()) == 1 ) {
+			return $this->part(0)->decodedContent();
+		}
+
+		return '';
+	}
+
 	/** @return bool */
 	public function delete() {
 		return $this->mailbox()->imap()->delete($this->msgNumber);
@@ -175,7 +184,7 @@ class IMAPMessage extends IMAPMessageContent implements IMAPMessagePartInterface
 			}
 			$name .= $part->subtype();
 			if ( $part->parameter('disposition') ) {
-				if ( $filename = $part->parameter('filename') ?: $part->parameter('name') ) {
+				if ( $filename = $part->filename() ) {
 					$name .= ' (' . $filename . ')';
 				}
 			}

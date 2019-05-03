@@ -29,6 +29,17 @@ foreach ($messages as $message) {
 echo "\n\n\n\n\n\n\n";
 print_r($woop);
 
+$imgs = $woop->subtypeParts(['JPEG', 'PNG', 'GIF'], true);
+var_dump(count($imgs));
+
+foreach ($imgs as $img) {
+	$filename = $img->safeFilename();
+	// echo substr($img->content(), 0, 10) . "\n\n";
+	// echo substr($img->decodedContent(), 0, 10) . "\n\n";
+	echo "$filename\n";
+	var_dump($img->saveAttachment(__DIR__ . '/attachments'));
+}
+
 
 
 exit;

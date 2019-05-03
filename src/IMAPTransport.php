@@ -56,7 +56,7 @@ class IMAPTransport implements IMAPTransportInterface {
 
 	/** @return string */
 	public function fetchbody( $msgNumber, $section ) {
-		return quoted_printable_decode(imap_fetchbody($this->resource, $msgNumber, $section, FT_PEEK));
+		return imap_fetchbody($this->resource, $msgNumber, $section, FT_PEEK);
 	}
 
 	/** @return bool */

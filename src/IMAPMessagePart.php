@@ -51,11 +51,52 @@ class IMAPMessagePart extends IMAPMessageContent implements IMAPMessagePartInter
 	}
 
 	/** @return string */
+	public function filename() {
+		return $this->parameter('filename') ?: $this->parameter('name');
+	}
+
+	/** @return string */
+	public function safeFilename() {
+		if ($filename = $this->filename()) {
+			return trim(preg_replace('#_+#', '_', preg_replace('#[^a-z0-9\-_\.]+#i', '', $filename)), '_');
+		}
+	}
+
+	/** @return string */
 	public function content() {
 		return $this->message()->mailbox()->imap()->fetchbody(
 			$this->message()->msgNumber(),
 			implode('.', $this->section())
 		);
+	}
+
+	/** @return string */
+	public function decodedContent() {
+		if ($raw = $this->content()) {
+			switch ($this->parameter('encoding')) {
+				case ENC7BIT:
+				case ENC8BIT:
+				case ENCQUOTEDPRINTABLE:
+					return quoted_printable_decode($raw);
+
+				case ENCBASE64:
+					return base64_decode($raw);
+			}
+
+			return $raw;
+		}
+	}
+
+	/** @return bool */
+	public function saveAttachment($dir, $filenameOverride = null) {
+		if ($filename = $this->safeFilename()) {
+			$filepath = realpath($dir) . '/' . ($filenameOverride ?? $filename);
+			if (file_put_contents($filepath, $this->decodedContent())) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/** @return IMAPMessage */

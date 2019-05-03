@@ -28,6 +28,9 @@ interface IMAPMessagePartInterface {
 	/** @return string */
 	public function content();
 
+	/** @return string */
+	public function decodedContent();
+
 	/** @return array */
 	public function parameters();
 
