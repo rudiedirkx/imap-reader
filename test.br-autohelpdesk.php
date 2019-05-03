@@ -13,7 +13,23 @@ print_r($mbox->headers());
 
 $messages = $mbox->messages();
 var_dump(count($messages));
-print_r($messages);
+// print_r($messages);
+
+$woop = null;
+foreach ($messages as $message) {
+	echo "\n\n\n\n";
+	echo $message->subject() . "\n";
+	echo implode("\n", $message->simpleStructure()) . "\n";
+
+	if (strpos($message->subject(), '"woop"')) {
+		$woop = $message;
+	}
+}
+
+echo "\n\n\n\n\n\n\n";
+print_r($woop);
+
+
 
 exit;
 

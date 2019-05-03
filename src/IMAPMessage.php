@@ -166,7 +166,7 @@ class IMAPMessage extends IMAPMessageContent implements IMAPMessagePartInterface
 	/** @return string[] */
 	public function simpleStructure() {
 		$parts = [];
-		foreach ( $this->allParts(true) as $part ) {
+		foreach ( $this->allParts() as $part ) {
 			$name = '';
 
 			$name .= implode('.', $part->section()) . '. ';
@@ -174,8 +174,13 @@ class IMAPMessage extends IMAPMessageContent implements IMAPMessagePartInterface
 				$name .= '*';
 			}
 			$name .= $part->subtype();
+			if ( $part->parameter('disposition') ) {
+				if ( $filename = $part->parameter('filename') ?: $part->parameter('name') ) {
+					$name .= ' (' . $filename . ')';
+				}
+			}
 			if ( $bytes = $part->parameter('bytes') ) {
-				$name .= ' (' . $bytes . ')';
+				$name .= ' (' . number_format($bytes/1024, 1) . 'kb)';
 			}
 
 			$parts[] = $name;

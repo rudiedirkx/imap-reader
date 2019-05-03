@@ -17,19 +17,14 @@ abstract class IMAPMessageContent implements IMAPMessagePartInterface {
 	abstract public function parts();
 
 	/** @return IMAPMessagePartInterface[] */
-	public function allParts( $withContainers = false ) {
+	public function allParts() {
 		$parts = [];
-		$iterate = function( IMAPMessagePartInterface $message ) use (&$iterate, &$parts, $withContainers) {
+		$iterate = function( IMAPMessagePartInterface $message ) use (&$iterate, &$parts) {
 			foreach ( $message->parts() as $part ) {
-				if ( $part->parts() ) {
-					if ( $withContainers ) {
-						$parts[] = $part;
-					}
+				$parts[] = $part;
 
+				if ( count($part->parts()) ) {
 					$iterate($part);
-				}
-				else {
-					$parts[] = $part;
 				}
 			}
 		};
@@ -65,25 +60,27 @@ abstract class IMAPMessageContent implements IMAPMessagePartInterface {
 	/** @return mixed */
 	public function parameter( $name ) {
 		$parameters = $this->parameters();
-		return @$parameters[ strtolower($name) ];
+		$structure = $this->structure();
+		return @$parameters[ strtolower($name) ] ?: @$structure->$name;
+	}
+
+	/** @return IMAPMessagePartInterface[] */
+	public function subtypeParts( $subtypes, $recursive ) {
+		$subtypes = (array) $subtypes;
+
+		$parts = $recursive ? $this->allParts() : $this->parts();
+		array_unshift($parts, $this);
+
+		return array_values(array_filter($parts, function(IMAPMessagePartInterface $part) use ($subtypes) {
+			return in_array($part->subtype(), $subtypes);
+		}));
 	}
 
 	/** @return IMAPMessagePartInterface */
 	public function subtypePart( $subtypes, $recursive ) {
-		$subtypes = (array) $subtypes;
-
-		/** @var IMAPMessagePartInterface[] $parts */
-		$method = [$this, $recursive ? 'allParts' : 'parts'];
-		$parts = call_user_func($method);
-		array_unshift($parts, $this);
-
-		foreach ( $parts as $part ) {
-			if ( in_array($part->subtype(), $subtypes) ) {
-				return $part;
-			}
+		if ( count($parts = $this->subtypeParts($subtypes, $recursive)) ) {
+			return $parts[0];
 		}
-
-		return null;
 	}
 
 	/** @return string */
