@@ -59,6 +59,11 @@ class IMAPTransport implements IMAPTransportInterface {
 		return imap_fetchbody($this->resource, $msgNumber, $section, FT_PEEK);
 	}
 
+	/** @return string */
+	public function fetchheader( $msgNumber ) {
+		return imap_fetchheader($this->resource, $msgNumber);
+	}
+
 	/** @return bool */
 	public function expunge() {
 		return imap_expunge($this->resource);

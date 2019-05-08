@@ -26,6 +26,15 @@ interface IMAPMessagePartInterface {
 	public function subtype();
 
 	/** @return string */
+	public function headerString();
+
+	/** @return string[] */
+	public function headers();
+
+	/** @return string */
+	public function header( $name );
+
+	/** @return string */
 	public function content();
 
 	/** @return string */

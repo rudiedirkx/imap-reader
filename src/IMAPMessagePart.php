@@ -87,6 +87,16 @@ class IMAPMessagePart extends IMAPMessageContent implements IMAPMessagePartInter
 		}
 	}
 
+	/** @return string */
+	public function headerString() {
+		if ($this->subtype() == 'RFC822') {
+			$x = explode("\r\n\r\n", $this->content());
+			return trim($x[0]);
+		}
+
+		return '';
+	}
+
 	/** @return bool */
 	public function saveAttachment($dir, $filenameOverride = null) {
 		if ($filename = $this->safeFilename()) {
@@ -116,7 +126,7 @@ class IMAPMessagePart extends IMAPMessageContent implements IMAPMessagePartInter
 
 	/** @return string */
 	public function subtype() {
-		return $this->subtype;
+		return strtoupper($this->subtype);
 	}
 
 }

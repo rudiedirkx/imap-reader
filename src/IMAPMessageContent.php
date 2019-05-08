@@ -64,6 +64,29 @@ abstract class IMAPMessageContent implements IMAPMessagePartInterface {
 		return @$parameters[ strtolower($name) ] ?: @$structure->$name;
 	}
 
+	/** @return string[] */
+	public function headers() {
+		if ( empty($this->headers) ) {
+			$headers = preg_split('#[\r\n]+(?=\w)#', $this->headerString());
+			$headers = array_map('mb_decode_mimeheader', $headers);
+
+			$this->headers = [];
+			foreach ($headers as $header) {
+				$x = explode(':', $header, 2);
+				$this->headers[ trim(strtolower($x[0])) ][] = trim($x[1]);
+			}
+		}
+
+		return $this->headers;
+	}
+
+	/** @return string|string[] */
+	public function header( $name ) {
+		$headers = $this->headers();
+		$header = $headers[strtolower($name)] ?? [null];
+		return count($header) == 1 ? $header[0] : $header;
+	}
+
 	/** @return IMAPMessagePartInterface[] */
 	public function subtypeParts( $subtypes, $recursive ) {
 		$subtypes = (array) $subtypes;

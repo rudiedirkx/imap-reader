@@ -8,7 +8,7 @@ class IMAPMessage extends IMAPMessageContent implements IMAPMessagePartInterface
 	protected $mailbox;
 
 	/** @var int */
-	protected $msgNumber = 1; // starts at 1, not 0
+	protected $msgNumber = 1; // Body starts at 1. Header is 0.
 
 	/** @var bool */
 	protected $unseen = true;
@@ -70,19 +70,9 @@ class IMAPMessage extends IMAPMessageContent implements IMAPMessagePartInterface
 		return $this->subject;
 	}
 
-	/** @return string[] */
-	public function headers() {
-		if ( empty($this->headers) ) {
-			$this->headers = $this->mailbox()->imap()->headerinfo($this->msgNumber);
-		}
-
-		return $this->headers;
-	}
-
 	/** @return string */
-	public function header( $name ) {
-		$headers = $this->headers();
-		return @$headers[ strtolower($name) ];
+	public function headerString() {
+		return trim($this->mailbox()->imap()->fetchheader($this->msgNumber()));
 	}
 
 	/** @return IMAPMessagePart */

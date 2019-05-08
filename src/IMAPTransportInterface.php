@@ -28,6 +28,9 @@ interface IMAPTransportInterface {
 	/** @return string */
 	public function fetchbody( $msgNumber, $section );
 
+	/** @return string */
+	public function fetchheader( $msgNumber );
+
 	/** @return bool */
 	public function expunge();
 
