@@ -65,7 +65,7 @@ abstract class IMAPMessageContent implements IMAPMessagePartInterface {
 	public function parameter( $name ) {
 		$parameters = $this->parameters();
 		$structure = $this->structure();
-		return @$parameters[ strtolower($name) ] ?: @$structure->$name;
+		return $parameters[ strtolower($name) ] ?? $structure->$name ?? null;
 	}
 
 	/** @return string[][] */
@@ -89,11 +89,10 @@ abstract class IMAPMessageContent implements IMAPMessagePartInterface {
 		return $this->headers;
 	}
 
-	/** @return string|string[] */
+	/** @return string[] */
 	public function header( $name ) {
 		$headers = $this->headers();
-		$header = $headers[strtolower($name)] ?? [null];
-		return count($header) == 1 ? $header[0] : $header;
+		return $headers[ strtolower($name) ] ?? [];
 	}
 
 	/** @return IMAPMessagePartInterface[] */

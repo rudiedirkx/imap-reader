@@ -28,10 +28,10 @@ interface IMAPMessagePartInterface {
 	/** @return string */
 	public function headerString();
 
-	/** @return string[] */
+	/** @return string[][] */
 	public function headers();
 
-	/** @return string */
+	/** @return string[] */
 	public function header( $name );
 
 	/** @return string */
