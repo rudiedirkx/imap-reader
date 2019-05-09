@@ -61,7 +61,7 @@ class IMAPMessagePart extends IMAPMessageContent implements IMAPMessagePartInter
 
 	/** @return string */
 	public function safeFilename() {
-		if ($filename = $this->filename()) {
+		if ( $filename = $this->filename() ) {
 			return trim(preg_replace('#_+#', '_', preg_replace('#[^a-z0-9\-_\.]+#i', '', $filename)), '_');
 		}
 	}
@@ -76,7 +76,7 @@ class IMAPMessagePart extends IMAPMessageContent implements IMAPMessagePartInter
 
 	/** @return string */
 	public function decodedContent() {
-		if ($raw = $this->content()) {
+		if ( $raw = $this->content() ) {
 			switch ($this->parameter('encoding')) {
 				case ENC7BIT:
 				case ENC8BIT:
@@ -103,9 +103,9 @@ class IMAPMessagePart extends IMAPMessageContent implements IMAPMessagePartInter
 
 	/** @return bool */
 	public function saveAttachment($dir, $filenameOverride = null) {
-		if ($filename = $this->safeFilename()) {
+		if ( $filename = $this->safeFilename() ) {
 			$filepath = realpath($dir) . '/' . ($filenameOverride ?? $filename);
-			if (file_put_contents($filepath, $this->decodedContent())) {
+			if ( file_put_contents($filepath, $this->decodedContent()) ) {
 				return true;
 			}
 		}

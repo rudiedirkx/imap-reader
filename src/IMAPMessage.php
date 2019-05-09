@@ -179,7 +179,7 @@ class IMAPMessage extends IMAPMessageContent implements IMAPMessagePartInterface
 				}
 			}
 			if ( $bytes = $part->parameter('bytes') ) {
-				$name .= ' (' . number_format($bytes/1024, 1) . 'kb)';
+				$name .= ' (' . number_format($bytes / 1024, 1) . 'kb)';
 			}
 
 			$parts[] = $name;

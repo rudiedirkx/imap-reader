@@ -80,7 +80,7 @@ abstract class IMAPMessageContent implements IMAPMessagePartInterface {
 			$headers = array_map('mb_decode_mimeheader', $headers);
 
 			$this->headers = [];
-			foreach ($headers as $header) {
+			foreach ( $headers as $header ) {
 				$x = explode(':', $header, 2);
 				$this->headers[ trim(strtolower($x[0])) ][] = trim($x[1]);
 			}
@@ -103,7 +103,7 @@ abstract class IMAPMessageContent implements IMAPMessagePartInterface {
 		$parts = $recursive ? $this->allParts() : $this->parts();
 		array_unshift($parts, $this);
 
-		return array_values(array_filter($parts, function(IMAPMessagePartInterface $part) use ($subtypes) {
+		return array_values(array_filter($parts, function( IMAPMessagePartInterface $part ) use ($subtypes) {
 			return in_array($part->subtype(), $subtypes);
 		}));
 	}
