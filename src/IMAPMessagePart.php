@@ -89,8 +89,8 @@ class IMAPMessagePart extends IMAPMessageContent implements IMAPMessagePartInter
 
 	/** @return string */
 	public function headerString() {
-		if ($this->subtype() == 'RFC822') {
-			$x = explode("\r\n\r\n", $this->content());
+		$x = explode("\r\n\r\n", $this->content());
+		if ( count($x) > 1 ) {
 			return trim($x[0]);
 		}
 
