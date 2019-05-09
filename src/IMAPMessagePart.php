@@ -77,7 +77,7 @@ class IMAPMessagePart extends IMAPMessageContent implements IMAPMessagePartInter
 	/** @return string */
 	public function decodedContent() {
 		if ( $raw = $this->content() ) {
-			switch ($this->parameter('encoding')) {
+			switch ( $this->parameter('encoding') ) {
 				case ENC7BIT:
 				case ENC8BIT:
 				case ENCQUOTEDPRINTABLE:
@@ -102,7 +102,7 @@ class IMAPMessagePart extends IMAPMessageContent implements IMAPMessagePartInter
 	}
 
 	/** @return bool */
-	public function saveAttachment($dir, $filenameOverride = null) {
+	public function saveAttachment( $dir, $filenameOverride = null ) {
 		if ( $filename = $this->safeFilename() ) {
 			$filepath = realpath($dir) . '/' . ($filenameOverride ?? $filename);
 			if ( file_put_contents($filepath, $this->decodedContent()) ) {
