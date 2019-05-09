@@ -13,10 +13,10 @@ abstract class IMAPMessageContent implements IMAPMessagePartInterface {
 	/** @var array */
 	protected $parameters = [];
 
-	/** @return IMAPMessagePartInterface[] */
+	/** @return IMAPMessagePart[] */
 	abstract public function parts();
 
-	/** @return IMAPMessagePartInterface[] */
+	/** @return IMAPMessagePart[] */
 	public function allParts() {
 		$parts = [];
 		$iterate = function( IMAPMessagePartInterface $message ) use (&$iterate, &$parts) {
@@ -33,7 +33,7 @@ abstract class IMAPMessageContent implements IMAPMessagePartInterface {
 		return $parts;
 	}
 
-	/** @return IMAPMessagePartInterface */
+	/** @return IMAPMessagePart */
 	public function part( $index ) {
 		$parts = $this->parts();
 		return @$parts[$index];
