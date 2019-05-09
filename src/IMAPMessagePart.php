@@ -27,18 +27,22 @@ class IMAPMessagePart extends IMAPMessageContent implements IMAPMessagePartInter
 
 	/** @return IMAPMessagePart[] */
 	public function parts() {
-		if ( empty($this->parts) && !empty($this->structure()->parts) ) {
-			$parts = $this->structure()->parts;
-			while ( count($parts) == 1 && empty($parts[0]->bytes) && !empty($parts[0]->parts) ) {
-				$this->skippedParts[] = $parts[0];
-				$parts = $parts[0]->parts;
-			}
+		if ( $this->parts === null ) {
+			$this->parts = [];
 
-			foreach ( $parts as $n => $part ) {
-				$this->parts[] = $this->message()->createMessagePart(
-					$part,
-					array_merge($this->section(), [$n + 1])
-				);
+			if ( !empty($this->structure()->parts) ) {
+				$parts = $this->structure()->parts;
+				while ( count($parts) == 1 && empty($parts[0]->bytes) && !empty($parts[0]->parts) ) {
+					$this->skippedParts[] = $parts[0];
+					$parts = $parts[0]->parts;
+				}
+
+				foreach ( $parts as $n => $part ) {
+					$this->parts[] = $this->message()->createMessagePart(
+						$part,
+						array_merge($this->section(), [$n + 1])
+					);
+				}
 			}
 		}
 

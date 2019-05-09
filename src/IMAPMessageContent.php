@@ -8,10 +8,13 @@ abstract class IMAPMessageContent implements IMAPMessagePartInterface {
 	protected $structure;
 
 	/** @var IMAPMessagePart[] */
-	protected $parts = [];
+	protected $parts = null;
+
+	/** @var string[][] */
+	protected $headers = null;
 
 	/** @var array */
-	protected $parameters = [];
+	protected $parameters = null;
 
 	/** @return IMAPMessagePart[] */
 	abstract public function parts();
@@ -41,7 +44,8 @@ abstract class IMAPMessageContent implements IMAPMessagePartInterface {
 
 	/** @return array */
 	public function parameters() {
-		if ( empty($this->parameters) ) {
+		if ( $this->parameters === null ) {
+			$this->parameters = [];
 			$structure = $this->structure();
 
 			$this->parameters['bytes'] = @$structure->bytes;
@@ -64,9 +68,9 @@ abstract class IMAPMessageContent implements IMAPMessagePartInterface {
 		return @$parameters[ strtolower($name) ] ?: @$structure->$name;
 	}
 
-	/** @return string[] */
+	/** @return string[][] */
 	public function headers() {
-		if ( empty($this->headers) ) {
+		if ( $this->headers === null ) {
 			$header = $this->headerString();
 			if ( !$header ) {
 				return $this->headers = [];
