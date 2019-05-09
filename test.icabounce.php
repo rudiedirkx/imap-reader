@@ -17,7 +17,7 @@ $part = $message->subtypePart('DELIVERY-STATUS', false);
 // echo $part->content();
 print_r($part->headers());
 
-exit;
+// exit;
 
 // echo $message->headerString() . "\n\n";
 // print_r($message->headers());

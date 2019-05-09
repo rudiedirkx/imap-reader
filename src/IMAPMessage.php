@@ -14,7 +14,7 @@ class IMAPMessage extends IMAPMessageContent implements IMAPMessagePartInterface
 	protected $unseen = true;
 
 	/** @var string[]  */
-	protected $headers = [];
+	protected $headerInfo = [];
 
 	/** @var string */
 	protected $subject = '';
@@ -28,7 +28,8 @@ class IMAPMessage extends IMAPMessageContent implements IMAPMessagePartInterface
 		$this->unseen = $unseen;
 
 		if ( $unseen === null ) {
-			$this->unseen = (bool) trim($this->header('unseen'));
+			$this->headerInfo = $this->mailbox()->imap()->headerinfo($this->msgNumber);
+			$this->unseen = (bool) trim($this->headerInfo['unseen'] ?? '');
 		}
 	}
 
@@ -57,17 +58,12 @@ class IMAPMessage extends IMAPMessageContent implements IMAPMessagePartInterface
 
 	/** @return int */
 	public function utc() {
-		return strtotime($this->header('date'));
+		return strtotime($this->header('date')[0] ?? '');
 	}
 
 	/** @return string */
 	public function subject() {
-		if ( empty($this->subject) ) {
-			$subject = $this->mailbox()->imap()->utf8($this->header('subject'));
-			$this->subject = trim($subject);
-		}
-
-		return $this->subject;
+		return $this->header('subject')[0] ?? '';
 	}
 
 	/** @return string */
