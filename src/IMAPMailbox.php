@@ -2,6 +2,8 @@
 
 namespace rdx\imap;
 
+use RuntimeException;
+
 class IMAPMailbox {
 
 	protected $server = '';
@@ -89,9 +91,9 @@ class IMAPMailbox {
 		$messages = [];
 		$eligibles = 0;
 		foreach ( $headers AS $n => $header ) {
-			if ( preg_match('/([UN]?)\s+(\d+)\)/', $header, $match) ) {
+			if ( preg_match('/([UN]?)\s+(\d+)([\)\d])[\d ]\d\-/', $header, $match) ) {
 				$unseen = (bool) trim($match[1]);
-				$msgNum = (int) $match[2];
+				$msgNum = (int) rtrim($match[2] . $match[3], ')');
 
 				$eligible = $options['seen'] === null || $unseen != $options['seen'];
 				if ( $eligible ) {
@@ -105,6 +107,9 @@ class IMAPMailbox {
 				if ( $options['limit'] && isset($messages[ $options['limit'] - 1 ]) ) {
 					break;
 				}
+			}
+			else {
+				throw new RuntimeException("Can't extract message header: '$header'");
 			}
 		}
 
