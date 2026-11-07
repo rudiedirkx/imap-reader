@@ -1,71 +1,56 @@
-IMAP reader
-====
+# rdx/imap
 
-[![Build Status](https://scrutinizer-ci.com/g/rudiedirkx/IMAP-reader/badges/build.png?b=master)](https://scrutinizer-ci.com/g/rudiedirkx/IMAP-reader/build-status/master)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/rudiedirkx/IMAP-reader/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/rudiedirkx/IMAP-reader/?branch=master)
+IMAP reading in pure PHP, without `ext-imap`.
 
-Reads e-mails on an IMAP server.
+**3.x is a complete rewrite of 2.x.** Nothing carries over: not the classes, not the methods, not the config.
 
-Features
-----
+## Connecting
 
-* Retrieves message parts
-* Recognizes PLAIN & HTML parts
-* Recognizes attachments
+```php
+$mailbox = ImapMailbox::fromDsn('imaps://user:pass@imap.example.com/INBOX');
 
-Uses PHP's built in [IMAP module](http://www.php.net/manual/en/ref.imap.php).
+$mailbox = new ImapMailbox(
+	host: 'imap.example.com',
+	username: 'user',
+	password: 'pass',
+);
+```
 
-Examples
-----
+`imaps://` is SSL (port 993), `imap://` is STARTTLS (port 143). The mailbox defaults to `INBOX`. URL-encode special characters in the DSN.
 
-Init connection & find messages:
+## Totals
 
-	$mbox = new rdx\imap\IMAPMailbox('example.com', 'user', 'password', 'INBOX', ['ssl', 'tls']);
-	$messages = $mbox->messages([
-		'newestFirst' => true, // bool
-		'seen' => false, // null|bool
-		'limit' => 10, // int
-		'offset' => 0, // int
-	]);
+```php
+$mailbox->getTotalMessages(); // int
+$mailbox->getTotalUnseenMessages(); // int
+```
 
-See a message's structure:
+## Reading messages
 
-	foreach ($messages as $message) {
-		echo $message->simpleStructure() . "\n\n";
-		
-		// Could be something complex like:
-		// 1. PLAIN (517)
-		// 2. DELIVERY-STATUS (315)
-		// 3. *RFC822 (2446)
-		// 3.1. PLAIN (610)
-		// 3.2. HTML (744)
-		
-		// Or something simple like:
-		// 1. PLAIN (123)
-		// 2. JPEG (76543)
-	}
+```php
+$messages = $mailbox->getAllIterator(limit: 50); // generator of ImapMessage
+$messages = $mailbox->getAllSinceIterator('2026-10-30', limit: 50); // generator of ImapMessage
+$messages = $mailbox->getUnseenIterator(limit: 50); // generator of ImapMessage
 
-Find all HTML parts, including attachments, forwards etc:
+$messages->getTotal(); // int
+foreach ($messages as $message) {
+	$message->getSubject(); // ?string
+	$message->getDatetime(); // ?DateTimeImmutable
+	$message->getHeader('Reply-to'); // ?string
+	$message->getAddress('From'); // ?string
+	$message->getAddresses('To'); // list<string>
+}
+```
 
-	foreach ($messages as $message) {
-		$htmls = $message->html(true); // true for recursive, false for only top level parts
-	}
+The iterator can be looped only once.
 
-Read bounce mail to find rejected addresses:
+## Changing
 
-	foreach ($messages as $message) {
-		$body = $message->subtypeContent('DELIVERY-STATUS');
-		if ($body && strpos($body, 'failed') !== false) {
-			// Extract address and do something
-		}
-	}
+```php
+$mailbox->markSeen($message);
+$mailbox->deleteOneMessage($message);
+$mailbox->deleteManyUids($uids);
+$mailbox->expunge(); // int
+```
 
-Find ALL image attachments:
-
-	foreach ($messages as $message) {
-		$attachments = $message->subtypeParts(['JPEG', 'PNG', 'GIF'], true); // true = recursive
-		
-		foreach ($attachments as $att) {
-			$att->saveAttachment('/some/folder');
-		}
-	}
+`deleteOneMessage()` and `deleteManyUids()` only flag messages. `expunge()` removes all flagged messages and returns how many.

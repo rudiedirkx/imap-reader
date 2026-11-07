@@ -1,23 +1,23 @@
 {
     "name": "rdx/imap",
-    "description": "Reads and parses e-mail from an IMAP/POP3 source",
+    "description": "imap reading",
     "type": "library",
-    "license": "MIT",
+    "require": {
+        "php": "^8.3",
+        "directorytree/imapengine": "^1.25"
+    },
+    "autoload": {
+        "psr-4": {
+            "rdx\\imap\\": "src/"
+        }
+    },
     "authors": [
         {
             "name": "Rudie Dirkx",
             "email": "github@hotblocks.nl"
         }
     ],
-    "minimum-stability": "dev",
-    "require": {
-        "ext-imap": "*"
-    },
-    "autoload": {
-        "psr-4": {
-            "rdx\\imap\\": "src"
-        }
-    },
     "require-dev": {
+        "symfony/var-dumper": "^7.4 || ^8.0"
     }
 }
