@@ -109,22 +109,6 @@ class ImapMessage {
 		return $part->getContent();
 	}
 
-	public function isAutoReply() : bool {
-		$autoSubmitted = $this->getHeader('Auto-Submitted') ?? '';
-		$autoSubmitted = strtolower(trim($autoSubmitted));
-		if (str_starts_with($autoSubmitted, 'auto-replied')) {
-			return true;
-		}
-
-		if ($this->getHeader('X-Autoreply') !== null || $this->getHeader('X-Autorespond') !== null) {
-			return true;
-		}
-
-		$precedence = $this->getHeader('Precedence') ?? '';
-		$precedence = strtolower(trim($precedence));
-		return $precedence === 'auto_reply';
-	}
-
 	public function getOriginalMessage() : ?ImapMessage {
 		if (isset($this->originalMessage)) {
 			return $this->originalMessage;

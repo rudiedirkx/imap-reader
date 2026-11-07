@@ -26,8 +26,5 @@ foreach ($messages as $i => $msg) {
 			'subject' => $msg->getOriginalMessage()?->getSubject(),
 		],
 	]);
-	if (!$msg->getOriginalMessage() && !$msg->isAutoReply()) {
-		echo $msg->getRawFull() . "\n";
-	}
 	echo "\n";
 }

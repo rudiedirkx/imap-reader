@@ -92,7 +92,7 @@ class ImapMailbox {
 		return (int) $status['UNSEEN'];
 	}
 
-	public function getAllIterator(int $limit = 50) : ImapMessageIterator {
+	public function getAllIterator(int $limit) : ImapMessageIterator {
 		try {
 			$query = $this->folder->messages();
 		}
@@ -103,7 +103,7 @@ class ImapMailbox {
 		return $this->iterate($query, $limit);
 	}
 
-	public function getAllSinceIterator(string $sinceDate, int $limit = 50) : ImapMessageIterator {
+	public function getAllSinceIterator(string $sinceDate, int $limit) : ImapMessageIterator {
 		try {
 			$query = $this->folder->messages()->since($sinceDate);
 		}
@@ -114,7 +114,7 @@ class ImapMailbox {
 		return $this->iterate($query, $limit);
 	}
 
-	public function getUnseenIterator(int $limit = 50) : ImapMessageIterator {
+	public function getUnseenIterator(int $limit) : ImapMessageIterator {
 		try {
 			$query = $this->folder->messages()->unseen();
 		}
